@@ -1,0 +1,211 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CONFIG DIALOGEX 0, 0, 436, 198
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Параметры анализа"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Сервисная задача",IDC_STATIC,10,9,63,8
+    EDITTEXT        IDC_SERVICE_TASK,78,7,350,12,ES_AUTOHSCROLL
+    GROUPBOX        "  ",IDC_STATIC,7,24,422,74
+    CONTROL         "Отображать положение базовых точек",IDC_SHOW_BASE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,24,150,10
+    LISTBOX         IDC_PARS_LIST,7,103,422,88,LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_TABSTOP
+    COMBOBOX        IDC_GOOD_TYPE,112,49,60,46,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           """Хорошая"" точка:",IDC_STATIC,19,52,60,8
+    COMBOBOX        IDC_BAD_TYPE,112,63,60,46,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           """Плохая"" точка:",IDC_STATIC,20,64,55,8
+    CONTROL         "Custom1",IDC_GOOD_COLOR_MIN,"UD_color_panel",WS_TABSTOP,205,51,10,10
+    LTEXT           "форма",IDC_STATIC,86,52,24,8
+    LTEXT           "форма",IDC_STATIC,86,64,24,8
+    LTEXT           "цвет",IDC_STATIC,181,52,16,8
+    LTEXT           "цвет",IDC_STATIC,181,64,16,8
+    CONTROL         "Custom1",IDC_BAD_COLOR,"UD_color_panel",WS_TABSTOP,205,64,10,10
+    CONTROL         "Custom1",IDC_GOOD_COLOR_MAX,"UD_color_panel",WS_TABSTOP,253,51,10,10
+    LTEXT           "min ... max",IDC_STATIC,217,52,34,8
+    LTEXT           "приоритет значений",IDC_STATIC,281,52,69,8
+    COMBOBOX        IDC_GOOD_PRIORITY,356,49,41,46,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Фактор размера метки",IDC_STATIC,28,81,82,8
+    EDITTEXT        IDC_SIZE_FACTOR,116,79,41,12,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "(размер метки обратно-пропорционален величине фактора)",IDC_STATIC,161,81,249,8
+    CONTROL         "Перерисовывать базовые точки после каждого шага",IDC_REDRAW_BASE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,34,263,10
+END
+
+IDD_HELP DIALOG  0, 0, 350, 206
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Справка по командам секции Task Scan"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_HELP_LIST,6,7,337,192,LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PARAMETER DIALOG  0, 0, 248, 198
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Параметр перебора"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_OBJECT,63,61,115,83,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Объект",IDC_STATIC,32,63,26,8
+    LTEXT           "Тип элемента",IDC_STATIC,11,78,48,8
+    COMBOBOX        IDC_TYPE,63,75,115,83,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Элемент",IDC_STATIC,29,92,30,8
+    COMBOBOX        IDC_ELEMENT,63,89,115,83,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "От",IDC_STATIC,49,132,10,8
+    EDITTEXT        IDC_VALUE_FROM,63,130,178,12,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "До",IDC_STATIC,48,146,11,8
+    EDITTEXT        IDC_VALUE_TO,63,143,178,12,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "Шаг",IDC_STATIC,48,158,14,8
+    EDITTEXT        IDC_VALUE_STEP,63,156,178,12,ES_CENTER | ES_AUTOHSCROLL
+    COMBOBOX        IDC_CATEGORY,63,20,115,83,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Категория",IDC_STATIC,22,22,36,8
+    LTEXT           "Имя",IDC_STATIC,43,9,16,8
+    EDITTEXT        IDC_NAME,63,7,115,12,ES_CENTER | ES_AUTOHSCROLL
+    COMBOBOX        IDC_KIND,63,35,115,83,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Вид",IDC_STATIC,44,37,14,8
+    LTEXT           "Значение",IDC_STATIC,26,118,33,8
+    EDITTEXT        IDC_VALUE,63,116,178,12,ES_CENTER | ES_AUTOHSCROLL
+    PUSHBUTTON      "Готово",IDC_SET,70,177,109,14
+END
+
+IDD_COLOR_CHOICE DIALOG  0, 0, 118, 66
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Выбирете нужный цвет"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Custom1",IDC_COLOR0,"UD_color_panel",WS_TABSTOP,7,7,10,11
+    CONTROL         "Custom1",IDC_COLOR1,"UD_color_panel",WS_TABSTOP,19,7,10,11
+    CONTROL         "Custom1",IDC_COLOR2,"UD_color_panel",WS_TABSTOP,31,7,10,11
+    CONTROL         "Custom1",IDC_COLOR3,"UD_color_panel",WS_TABSTOP,43,7,10,11
+    CONTROL         "Custom1",IDC_COLOR4,"UD_color_panel",WS_TABSTOP,55,7,10,11
+    CONTROL         "Custom1",IDC_COLOR5,"UD_color_panel",WS_TABSTOP,67,7,10,11
+    CONTROL         "Custom1",IDC_COLOR6,"UD_color_panel",WS_TABSTOP,79,7,10,11
+    CONTROL         "Custom1",IDC_COLOR7,"UD_color_panel",WS_TABSTOP,91,7,10,11
+    CONTROL         "Custom1",IDC_COLOR8,"UD_color_panel",WS_TABSTOP,7,20,10,11
+    CONTROL         "Custom1",IDC_COLOR9,"UD_color_panel",WS_TABSTOP,19,20,10,11
+    CONTROL         "Custom1",IDC_COLOR10,"UD_color_panel",WS_TABSTOP,31,20,10,11
+    CONTROL         "Custom1",IDC_COLOR11,"UD_color_panel",WS_TABSTOP,43,20,10,11
+    CONTROL         "Custom1",IDC_COLOR12,"UD_color_panel",WS_TABSTOP,55,20,10,11
+    CONTROL         "Custom1",IDC_COLOR13,"UD_color_panel",WS_TABSTOP,67,20,10,11
+    CONTROL         "Custom1",IDC_COLOR14,"UD_color_panel",WS_TABSTOP,79,20,10,11
+    CONTROL         "Custom1",IDC_COLOR15,"UD_color_panel",WS_TABSTOP,91,20,10,11
+    CONTROL         "Custom1",IDC_COLOR16,"UD_color_panel",WS_TABSTOP,7,33,10,11
+    CONTROL         "Custom1",IDC_COLOR17,"UD_color_panel",WS_TABSTOP,19,33,10,11
+    CONTROL         "Custom1",IDC_COLOR18,"UD_color_panel",WS_TABSTOP,31,33,10,11
+    CONTROL         "Custom1",IDC_COLOR19,"UD_color_panel",WS_TABSTOP,43,33,10,11
+    CONTROL         "Custom1",IDC_COLOR20,"UD_color_panel",WS_TABSTOP,55,33,10,11
+    CONTROL         "Custom1",IDC_COLOR21,"UD_color_panel",WS_TABSTOP,67,33,10,11
+    CONTROL         "Custom1",IDC_COLOR22,"UD_color_panel",WS_TABSTOP,79,33,10,11
+    CONTROL         "Custom1",IDC_COLOR23,"UD_color_panel",WS_TABSTOP,91,33,10,11
+    CONTROL         "Custom1",IDC_COLOR24,"UD_color_panel",WS_TABSTOP,7,48,10,11
+    CONTROL         "Custom1",IDC_COLOR25,"UD_color_panel",WS_TABSTOP,19,48,10,11
+    CONTROL         "Custom1",IDC_COLOR26,"UD_color_panel",WS_TABSTOP,31,48,10,11
+    CONTROL         "Custom1",IDC_COLOR27,"UD_color_panel",WS_TABSTOP,43,48,10,11
+    CONTROL         "Custom1",IDC_COLOR28,"UD_color_panel",WS_TABSTOP,55,48,10,11
+    CONTROL         "Custom1",IDC_COLOR29,"UD_color_panel",WS_TABSTOP,67,48,10,11
+    CONTROL         "Custom1",IDC_COLOR30,"UD_color_panel",WS_TABSTOP,79,48,10,11
+    CONTROL         "Custom1",IDC_COLOR31,"UD_color_panel",WS_TABSTOP,91,48,10,11
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    "IDD_CONFIG", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 429
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+
+    "IDD_PARAMETER", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 241
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+
+    "IDD_COLOR_CHOICE", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 111
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
