@@ -1,0 +1,4 @@
+LIBRARY T_Fast
+   EXPORTS
+         Identify   DATA
+	 GetEntry   DATA

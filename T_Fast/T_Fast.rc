@@ -1,0 +1,124 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_HELP DIALOG DISCARDABLE  0, 0, 350, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Справка по командам секции Task Fast"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_HELP_LIST,6,7,337,192,LBS_NOINTEGRALHEIGHT | NOT 
+                    WS_BORDER | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_CONFIG DIALOG DISCARDABLE  0, 0, 331, 154
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Параметры оптимизации"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Контроль допустимости траектории",IDC_STATIC,10,9,123,8
+    EDITTEXT        IDC_LINE_CHECK,140,7,184,12,ES_AUTOHSCROLL
+    CONTROL         "Сокращение числа подвижных степеней на участке",
+                    IDC_SIMPL_OPT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,
+                    98,150,10
+    GROUPBOX        "Способы оптимизации",IDC_STATIC,7,81,317,66
+    CONTROL         "Уменьшение кривизны изломов в опорных точках",
+                    IDC_SMOOTH_OPT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,
+                    114,188,10
+    CONTROL         "Дробление участков с временем прохождения более",
+                    IDC_CUT_OPT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,131,
+                    194,10
+    LTEXT           "Вычисление времени прохождения",IDC_STATIC,12,25,120,8
+    EDITTEXT        IDC_TIME_CALC,140,23,184,12,ES_AUTOHSCROLL
+    COMBOBOX        IDC_SIMPL_METHOD,188,97,130,72,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Отрисовка",IDC_STATIC,94,40,38,8
+    EDITTEXT        IDC_LINE_DRAW,140,39,184,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CUT_TIME,216,129,24,12,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "сек",IDC_STATIC,242,131,13,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "IDD_CONFIG", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 324
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 147
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
