@@ -1,0 +1,354 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_HELP DIALOG DISCARDABLE  0, 0, 350, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Справка по командам секции Object Flyer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_HELP_LIST,6,7,337,192,LBS_NOINTEGRALHEIGHT | NOT 
+                    WS_BORDER | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_DEGREES DIALOG DISCARDABLE  0, 0, 234, 54
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Управление степенями подвижности"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_X,30,7,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Y,30,21,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Z,30,34,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM,174,7,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV,174,21,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL,174,35,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,18,9,8,9
+    LTEXT           "Y",IDC_STATIC,18,23,8,9
+    LTEXT           "Z",IDC_STATIC,18,37,8,9
+    LTEXT           "Азимут",IDC_STATIC,144,9,27,9
+    LTEXT           "Угол возвышения",IDC_STATIC,106,23,65,9
+    LTEXT           "Угол крена",IDC_STATIC,128,37,41,9
+END
+
+IDD_KEYS DIALOG DISCARDABLE  0, 0, 157, 124
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Назначение управляющих клавиш"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_X,81,7,63,92,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_Y,81,21,63,92,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_Z,81,34,63,92,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_AZIM,81,52,63,92,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_ELEV,81,66,63,92,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_ROLL,81,80,63,92,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "X",IDC_STATIC,69,9,8,9
+    LTEXT           "Y",IDC_STATIC,69,23,8,9
+    LTEXT           "Z",IDC_STATIC,69,37,8,9
+    LTEXT           "Азимут",IDC_STATIC,51,54,27,9
+    LTEXT           "Угол возвышения",IDC_STATIC,14,68,62,9
+    LTEXT           "Угол крена",IDC_STATIC,36,82,40,9
+    PUSHBUTTON      "Назначить по умолчанию",IDC_DEFAULT,7,102,143,13
+END
+
+IDD_BODIES DIALOG DISCARDABLE  0, 0, 316, 41
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Назначение связанных тел"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Основание",IDC_STATIC,9,8,40,8
+    RTEXT           """Голова""",IDC_STATIC,8,23,40,8
+    EDITTEXT        IDC_BASE_PARS,53,6,243,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    EDITTEXT        IDC_HEAD_PARS,53,21,243,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    PUSHBUTTON      "...",IDC_ASSIGN_BASE,298,7,11,12
+    PUSHBUTTON      "...",IDC_ASSIGN_HEAD,298,21,11,12
+END
+
+IDD_BODY_ASSIGN DIALOG DISCARDABLE  0, 0, 364, 169
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Назначение тел на звено"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Модель обьекта:",IDC_STATIC,46,68,58,8
+    COMBOBOX        IDC_MODEL,106,66,154,104,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Библиотека моделей:",IDC_STATIC,30,53,74,8
+    EDITTEXT        IDC_LIBRARY_PATH,106,51,140,12,ES_AUTOHSCROLL | NOT 
+                    WS_TABSTOP
+    PUSHBUTTON      "...",IDC_LIBRARY_BROWSE,248,51,11,12,NOT WS_TABSTOP
+    EDITTEXT        IDC_PAR_NAME_1,11,87,91,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_BORDER | NOT WS_TABSTOP
+    EDITTEXT        IDC_PAR_VALUE_1,107,85,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAR_VALUE_2,107,98,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAR_VALUE_3,107,111,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAR_VALUE_4,107,124,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAR_VALUE_5,107,137,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAR_NAME_2,11,100,91,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_BORDER | NOT WS_TABSTOP
+    EDITTEXT        IDC_PAR_NAME_3,11,113,91,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_BORDER | NOT WS_TABSTOP
+    EDITTEXT        IDC_PAR_NAME_4,11,125,91,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_BORDER | NOT WS_TABSTOP
+    EDITTEXT        IDC_PAR_NAME_5,11,138,91,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_PICTURE,"Static",SS_BITMAP | SS_SUNKEN,143,84,120,
+                    70
+    GROUPBOX        "Модель",IDC_STATIC,6,42,263,121
+    GROUPBOX        "Привязка",IDC_STATIC,273,42,84,121
+    EDITTEXT        IDC_X_BASE,315,56,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Y_BASE,315,69,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Z_BASE,315,82,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM,315,99,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV,315,112,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL,315,125,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_BABY_LEN,315,142,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    LISTBOX         IDC_BODY_LIST,7,7,260,31,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    RTEXT           "База X:",IDC_STATIC,285,58,26,8
+    RTEXT           "База Y:",IDC_STATIC,285,71,26,8
+    RTEXT           "База Z:",IDC_STATIC,285,84,26,8
+    RTEXT           "Азимут:",IDC_STATIC,283,101,28,8
+    RTEXT           "Тангаж:",IDC_STATIC,283,113,28,8
+    RTEXT           "Крен:",IDC_STATIC,291,126,20,8
+    RTEXT           "0-длина:",IDC_STATIC,282,144,29,8
+    GROUPBOX        "Название",IDC_STATIC,273,3,84,38
+    EDITTEXT        IDC_DESCRIBE,278,13,75,24,ES_MULTILINE | ES_AUTOVSCROLL
+END
+
+IDD_RANGES DIALOG DISCARDABLE  0, 0, 332, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Диапазоны значений степеней подвижности"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_AZIM_MIN,74,66,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MIN,74,79,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MIN,74,92,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "Азимут",IDC_STATIC,47,67,25,9
+    LTEXT           "Угол возвышения",IDC_STATIC,9,80,64,9
+    LTEXT           "Угол крена",IDC_STATIC,31,93,39,9
+    EDITTEXT        IDC_X_MIN,74,7,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,64,9,8,8
+    EDITTEXT        IDC_Y_MIN,74,20,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,64,22,8,8
+    EDITTEXT        IDC_Z_MIN,74,34,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,64,35,8,8
+    EDITTEXT        IDC_X_MAX,128,7,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Y_MAX,128,20,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Z_MAX,128,34,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_MAX,128,66,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MAX,128,79,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MAX,128,92,53,12,ES_RIGHT | ES_AUTOHSCROLL
+    CONTROL         "",IDC_X_TEST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,184,
+                    9,9,8
+    CONTROL         "",IDC_Y_TEST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,184,
+                    22,9,8
+    CONTROL         "",IDC_Z_TEST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,184,
+                    35,9,8
+    CONTROL         "",IDC_AZIM_TEST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    184,68,9,8
+    CONTROL         "",IDC_ELEV_TEST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    184,81,9,8
+    CONTROL         "",IDC_ROLL_TEST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    184,95,9,8
+    CTEXT           "Установка галочки задает проверку соответствия значения в степени подвижности диапазону",
+                    IDC_STATIC,202,7,123,41
+END
+
+IDD_MASSES DIALOG DISCARDABLE  0, 0, 316, 41
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Назначение связанных масс"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Основание",IDC_STATIC,9,8,40,8
+    RTEXT           """Голова""",IDC_STATIC,8,23,40,8
+    EDITTEXT        IDC_BASE_PARS,53,6,243,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    EDITTEXT        IDC_HEAD_PARS,53,21,243,13,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    PUSHBUTTON      "...",IDC_ASSIGN_BASE,298,7,11,12
+    PUSHBUTTON      "...",IDC_ASSIGN_HEAD,298,21,11,12
+END
+
+IDD_MASS_ASSIGN DIALOG DISCARDABLE  0, 0, 364, 169
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Назначение масс на звено"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Модель",IDC_STATIC,6,42,235,121
+    GROUPBOX        "Привязка",IDC_STATIC,246,42,111,121
+    EDITTEXT        IDC_X_BASE,315,56,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Y_BASE,315,69,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_Z_BASE,315,82,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM,315,99,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV,315,112,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL,315,125,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_MOVE_COEF,315,142,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    LISTBOX         IDC_MASS_LIST,7,7,233,31,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    RTEXT           "База X:",IDC_STATIC,285,58,26,8
+    RTEXT           "База Y:",IDC_STATIC,285,71,26,8
+    RTEXT           "База Z:",IDC_STATIC,285,84,26,8
+    RTEXT           "Азимут:",IDC_STATIC,283,101,28,8
+    RTEXT           "Тангаж:",IDC_STATIC,283,113,28,8
+    RTEXT           "Крен:",IDC_STATIC,291,126,20,8
+    RTEXT           "Коэф. сдвига:",IDC_STATIC,263,144,48,8
+    GROUPBOX        "Название",IDC_STATIC,245,3,112,38
+    EDITTEXT        IDC_DESCRIBE,250,13,103,24,ES_MULTILINE | ES_AUTOVSCROLL
+    EDITTEXT        IDC_J_X,109,90,51,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_J_Y,109,103,51,12,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_J_Z,109,115,51,12,ES_RIGHT | ES_AUTOHSCROLL
+    RTEXT           "Ось X:",IDC_STATIC,82,91,23,8
+    RTEXT           "Ось Y:",IDC_STATIC,82,105,23,8
+    RTEXT           "Ось Z:",IDC_STATIC,82,118,23,8
+    EDITTEXT        IDC_MASS,109,55,31,12,ES_RIGHT | ES_AUTOHSCROLL
+    RTEXT           "Масса:",IDC_STATIC,81,56,25,8
+    RTEXT           "Главные моменты инерции",IDC_STATIC,13,80,94,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "IDD_HELP", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 199
+    END
+
+    "IDD_DEGREES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 47
+    END
+
+    "IDD_KEYS", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 150
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 117
+    END
+
+    "IDD_BODIES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 34
+    END
+
+    "IDD_BODY_ASSIGN", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 357
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 162
+    END
+
+    "IDD_RANGES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 325
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+
+    "IDD_MASSES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 34
+    END
+
+    "IDD_MASS_ASSIGN", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 357
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 162
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
