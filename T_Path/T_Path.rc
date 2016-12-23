@@ -1,0 +1,144 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_HELP DIALOG DISCARDABLE  0, 0, 350, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Справка по командам секции Task Path"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_HELP_LIST,6,7,337,192,LBS_NOINTEGRALHEIGHT | NOT 
+                    WS_BORDER | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_CONFIG DIALOG DISCARDABLE  0, 0, 226, 159
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Настройки поискового алгоритма"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Точность поиска: координат",IDC_STATIC,62,96,98,8
+    LTEXT           "углов",IDC_STATIC,140,109,20,8
+    EDITTEXT        IDC_LINE_ACC,163,94,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ANGLE_ACC,163,107,40,12,ES_AUTOHSCROLL
+    LTEXT           "Делитель шага сближения",IDC_STATIC,68,123,92,8
+    EDITTEXT        IDC_SCAN_STEP,163,121,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Число неудачных векторов подряд",IDC_STATIC,40,137,119,
+                    8
+    EDITTEXT        IDC_FAIL_MAX,163,135,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Общий алгоритм поиска",IDC_STATIC,6,3,213,78
+    GROUPBOX        "Поиск целевой точки",IDC_STATIC,6,84,213,67
+    LTEXT           "Число случайных векторов перед каждым направленным вектором",
+                    IDC_STATIC,15,14,145,17
+    EDITTEXT        IDC_RANDOM_COUNT,163,12,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Максимальное число пробных векторов",IDC_STATIC,22,35,
+                    138,8
+    EDITTEXT        IDC_VECTORS_MAX,163,33,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Шаг сканирования: координат",IDC_STATIC,56,52,104,8
+    LTEXT           "углов",IDC_STATIC,139,65,20,8
+    EDITTEXT        IDC_LINE_STEP,163,50,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ANGLE_STEP,163,63,40,12,ES_AUTOHSCROLL
+END
+
+IDD_SAVE DIALOG DISCARDABLE  0, 0, 234, 42
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Сохранение траектории"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_NAME,55,7,172,12,ES_AUTOHSCROLL
+    LTEXT           "Название",IDC_STATIC,13,9,34,8
+    EDITTEXT        IDC_DESCRIPTION,55,23,172,12,ES_AUTOHSCROLL
+    LTEXT           "Описание",IDC_STATIC,13,25,34,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "IDD_CONFIG", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 219
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 152
+    END
+
+    "IDD_SAVE", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 35
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
