@@ -1,0 +1,4 @@
+LIBRARY O_PSet
+   EXPORTS
+         Identify   DATA
+	 GetEntry   DATA
