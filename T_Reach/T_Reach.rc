@@ -1,0 +1,124 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CONFIG DIALOG DISCARDABLE  0, 0, 226, 140
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Настройки поискового алгоритма"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Точность поиска: координат",IDC_STATIC,34,65,98,8
+    LTEXT           "углов",IDC_STATIC,112,78,20,8
+    EDITTEXT        IDC_LINE_ACC,135,63,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ANGLE_ACC,135,76,40,12,ES_AUTOHSCROLL
+    LTEXT           "Начало поиска:",IDC_STATIC,14,8,54,8
+    CONTROL         "От текущего положения",IDC_START_CUR,"Button",
+                    BS_AUTORADIOBUTTON,73,8,141,8
+    CONTROL         "От середины диапазонов степеней",IDC_START_MID,"Button",
+                    BS_AUTORADIOBUTTON,73,17,141,8
+    CONTROL         "Отрисовывать в процессе поиска",IDC_DRAW_SCAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,74,32,131,10
+    CONTROL         "Проверять ограничения в степенях",IDC_CHECK_RANGES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,74,42,136,10
+    LTEXT           "Делитель шага сближения",IDC_STATIC,40,96,92,8
+    EDITTEXT        IDC_SCAN_STEP,135,94,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Коэффициент длины отскока",IDC_STATIC,32,109,100,8
+    EDITTEXT        IDC_JAMP_RANGE,135,107,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Число неудачных векторов подряд",IDC_STATIC,12,122,119,
+                    8
+    EDITTEXT        IDC_FAIL_MAX,135,120,21,12,ES_AUTOHSCROLL | ES_NUMBER
+END
+
+IDD_HELP DIALOG DISCARDABLE  0, 0, 350, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Справка по командам секции Task Reach"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_HELP_LIST,6,7,337,192,LBS_NOINTEGRALHEIGHT | NOT 
+                    WS_BORDER | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "IDD_CONFIG", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 219
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 133
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
