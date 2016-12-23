@@ -1,0 +1,127 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Developer Studio generated include file.
+// Used by T_Area.rc
+//
+#define IDC_HELP_LIST                   1000
+#define IDC_LIST                        1000
+#define IDC_COLOR0                      1059
+#define IDC_COLOR1                      1060
+#define IDC_COLOR2                      1061
+#define IDC_COLOR3                      1062
+#define IDC_COLOR4                      1063
+#define IDC_COLOR5                      1064
+#define IDC_COLOR6                      1065
+#define IDC_COLOR7                      1066
+#define IDC_COLOR8                      1067
+#define IDC_COLOR9                      1068
+#define IDC_COLOR10                     1069
+#define IDC_COLOR11                     1070
+#define IDC_COLOR12                     1071
+#define IDC_COLOR13                     1072
+#define IDC_COLOR14                     1073
+#define IDC_COLOR15                     1074
+#define IDC_COLOR16                     1075
+#define IDC_COLOR17                     1076
+#define IDC_COLOR18                     1077
+#define IDC_COLOR19                     1078
+#define IDC_COLOR20                     1079
+#define IDC_COLOR21                     1080
+#define IDC_COLOR22                     1081
+#define IDC_COLOR23                     1082
+#define IDC_COLOR24                     1083
+#define IDC_COLOR25                     1084
+#define IDC_COLOR26                     1085
+#define IDC_COLOR27                     1086
+#define IDC_COLOR28                     1087
+#define IDC_COLOR29                     1088
+#define IDC_COLOR30                     1089
+#define IDC_COLOR31                     1090
+#define IDC_USE_1                       1101
+#define IDC_COLOR_1                     1102
+#define IDC_AZIM_SET_1                  1103
+#define IDC_AZIM_MIN_1                  1104
+#define IDC_AZIM_MAX_1                  1105
+#define IDC_AZIM_LIST_1                 1106
+#define IDC_AZIM_BASE_1                 1107
+#define IDC_ELEV_SET_1                  1108
+#define IDC_ELEV_MIN_1                  1109
+#define IDC_ELEV_MAX_1                  1110
+#define IDC_ELEV_LIST_1                 1111
+#define IDC_ELEV_BASE_1                 1112
+#define IDC_ROLL_SET_1                  1113
+#define IDC_ROLL_MIN_1                  1114
+#define IDC_ROLL_MAX_1                  1115
+#define IDC_ROLL_LIST_1                 1116
+#define IDC_ORDER_1                     1117
+#define IDC_PRIORITY_1                  1118
+#define IDC_USE_2                       1201
+#define IDC_COLOR_2                     1202
+#define IDC_AZIM_SET_2                  1203
+#define IDC_AZIM_MIN_2                  1204
+#define IDC_AZIM_MAX_2                  1205
+#define IDC_AZIM_LIST_2                 1206
+#define IDC_AZIM_BASE_2                 1207
+#define IDC_ELEV_SET_2                  1208
+#define IDC_ELEV_MIN_2                  1209
+#define IDC_ELEV_MAX_2                  1210
+#define IDC_ELEV_LIST_2                 1211
+#define IDC_ELEV_BASE_2                 1212
+#define IDC_ROLL_SET_2                  1213
+#define IDC_ROLL_MIN_2                  1214
+#define IDC_ROLL_MAX_2                  1215
+#define IDC_ROLL_LIST_2                 1216
+#define IDC_ORDER_2                     1217
+#define IDC_PRIORITY_2                  1218
+#define IDC_USE_3                       1301
+#define IDC_COLOR_3                     1302
+#define IDC_AZIM_SET_3                  1303
+#define IDC_AZIM_MIN_3                  1304
+#define IDC_AZIM_MAX_3                  1305
+#define IDC_AZIM_LIST_3                 1306
+#define IDC_AZIM_BASE_3                 1307
+#define IDC_ELEV_SET_3                  1308
+#define IDC_ELEV_MIN_3                  1309
+#define IDC_ELEV_MAX_3                  1310
+#define IDC_ELEV_LIST_3                 1311
+#define IDC_ELEV_BASE_3                 1312
+#define IDC_ROLL_SET_3                  1313
+#define IDC_ROLL_MIN_3                  1314
+#define IDC_ROLL_MAX_3                  1315
+#define IDC_ROLL_LIST_3                 1316
+#define IDC_ORDER_3                     1317
+#define IDC_PRIORITY_3                  1318
+#define IDC_USE_4                       1401
+#define IDC_COLOR_4                     1402
+#define IDC_AZIM_SET_4                  1403
+#define IDC_AZIM_MIN_4                  1404
+#define IDC_AZIM_MAX_4                  1405
+#define IDC_AZIM_LIST_4                 1406
+#define IDC_AZIM_BASE_4                 1407
+#define IDC_ELEV_SET_4                  1408
+#define IDC_ELEV_MIN_4                  1409
+#define IDC_ELEV_MAX_4                  1410
+#define IDC_ELEV_LIST_4                 1411
+#define IDC_ELEV_BASE_4                 1412
+#define IDC_ROLL_SET_4                  1413
+#define IDC_ROLL_MIN_4                  1414
+#define IDC_ROLL_MAX_4                  1415
+#define IDC_ROLL_LIST_4                 1416
+#define IDC_ORDER_4                     1417
+#define IDC_PRIORITY_4                  1418
+#define IDC_ANGLE_STEP                  2048
+#define IDC_HELP_TEXT                   2058
+#define IDC_IND_DEL                     2201
+#define IDC_IND_ALL                     2202
+#define IDC_IND_SCENE                   2203
+#define IDC_IND_HIDE                    2204
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        103
+#define _APS_NEXT_COMMAND_VALUE         40001
+#define _APS_NEXT_CONTROL_VALUE         2205
+#define _APS_NEXT_SYMED_VALUE           101
+#endif
+#endif

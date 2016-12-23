@@ -1,0 +1,484 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_HELP DIALOG DISCARDABLE  0, 0, 350, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Справка по командам секции Task Point"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_HELP_LIST,6,7,337,192,LBS_NOINTEGRALHEIGHT | NOT 
+                    WS_BORDER | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_INDICATORS_LIST DIALOG DISCARDABLE  0, 0, 311, 199
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Список индикаторов анализа областей"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_LIST,7,7,297,179,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Для управления используйте двойной клик и меню на правой кнопке мыши.",
+                    IDC_HELP_TEXT,25,188,262,8
+END
+
+IDD_ANGLES DIALOG DISCARDABLE  0, 0, 375, 159
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Таблица углов подхода"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_AZIM_MIN_1,65,19,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_MAX_1,89,19,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MIN_1,153,19,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MAX_1,177,19,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MIN_1,241,19,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MAX_1,265,19,24,13,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "",IDC_USE_1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,21,
+                    8,8
+    COMBOBOX        IDC_AZIM_SET_1,34,19,31,44,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_ELEV_SET_1,122,19,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ROLL_SET_1,210,19,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ORDER_1,298,19,50,87,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Азимут",IDC_STATIC,58,6,26,8
+    LTEXT           "Угол возвышения",IDC_STATIC,131,6,62,8
+    LTEXT           "Угол крена",IDC_STATIC,225,6,40,8
+    LTEXT           "Порядок",IDC_STATIC,301,6,30,8
+    PUSHBUTTON      "^",IDC_PRIORITY_1,355,19,13,12,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    EDITTEXT        IDC_AZIM_MIN_2,65,49,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_MAX_2,89,49,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MIN_2,153,49,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MAX_2,177,49,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MIN_2,241,49,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MAX_2,265,49,24,13,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "",IDC_USE_2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,51,
+                    8,8
+    COMBOBOX        IDC_AZIM_SET_2,34,49,31,44,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_ELEV_SET_2,122,49,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ROLL_SET_2,210,49,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ORDER_2,298,49,50,87,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "^",IDC_PRIORITY_2,356,49,13,12
+    EDITTEXT        IDC_AZIM_MIN_3,65,79,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_MAX_3,89,79,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MIN_3,153,79,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MAX_3,177,79,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MIN_3,241,79,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MAX_3,265,79,24,13,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "",IDC_USE_3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,81,
+                    8,8
+    COMBOBOX        IDC_AZIM_SET_3,34,79,31,44,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_ELEV_SET_3,122,79,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ROLL_SET_3,210,79,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ORDER_3,298,79,50,87,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "^",IDC_PRIORITY_3,356,79,13,12
+    EDITTEXT        IDC_AZIM_MIN_4,65,110,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_MAX_4,89,110,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MIN_4,153,110,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_MAX_4,177,110,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MIN_4,241,110,24,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_MAX_4,265,110,24,13,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "",IDC_USE_4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,112,
+                    8,8
+    COMBOBOX        IDC_AZIM_SET_4,34,110,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ELEV_SET_4,122,110,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ROLL_SET_4,210,110,31,44,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ORDER_4,298,110,50,87,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "^",IDC_PRIORITY_4,356,110,13,12
+    EDITTEXT        IDC_ANGLE_STEP,210,139,26,13,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "Шаг сканирования углов",IDC_STATIC,121,141,85,11
+    COMBOBOX        IDC_AZIM_BASE_1,34,32,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_AZIM_BASE_2,34,62,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_AZIM_BASE_3,34,92,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_AZIM_BASE_4,34,123,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ELEV_BASE_1,122,32,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ELEV_BASE_2,122,62,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ELEV_BASE_3,122,92,79,48,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ELEV_BASE_4,122,123,79,48,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_AZIM_LIST_1,65,19,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_LIST_2,65,49,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_LIST_3,65,79,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_AZIM_LIST_4,65,110,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_LIST_1,153,19,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_LIST_2,153,49,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_LIST_3,153,79,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEV_LIST_4,153,110,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_LIST_1,241,19,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_LIST_2,241,49,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_LIST_3,241,79,48,13,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ROLL_LIST_4,241,110,48,13,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "Custom1",IDC_COLOR_1,"UD_color_panel",WS_TABSTOP,20,20,
+                    10,10
+    CONTROL         "Custom1",IDC_COLOR_2,"UD_color_panel",WS_TABSTOP,20,50,
+                    10,10
+    CONTROL         "Custom1",IDC_COLOR_3,"UD_color_panel",WS_TABSTOP,20,80,
+                    10,10
+    CONTROL         "Custom1",IDC_COLOR_4,"UD_color_panel",WS_TABSTOP,20,111,
+                    10,10
+END
+
+IDD_COLOR_CHOICE DIALOG DISCARDABLE  0, 0, 118, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Выбирете нужный цвет"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Custom1",IDC_COLOR0,"UD_color_panel",WS_TABSTOP,7,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR1,"UD_color_panel",WS_TABSTOP,19,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR2,"UD_color_panel",WS_TABSTOP,31,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR3,"UD_color_panel",WS_TABSTOP,43,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR4,"UD_color_panel",WS_TABSTOP,55,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR5,"UD_color_panel",WS_TABSTOP,67,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR6,"UD_color_panel",WS_TABSTOP,79,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR7,"UD_color_panel",WS_TABSTOP,91,7,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR8,"UD_color_panel",WS_TABSTOP,7,20,10,
+                    11
+    CONTROL         "Custom1",IDC_COLOR9,"UD_color_panel",WS_TABSTOP,19,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR10,"UD_color_panel",WS_TABSTOP,31,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR11,"UD_color_panel",WS_TABSTOP,43,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR12,"UD_color_panel",WS_TABSTOP,55,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR13,"UD_color_panel",WS_TABSTOP,67,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR14,"UD_color_panel",WS_TABSTOP,79,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR15,"UD_color_panel",WS_TABSTOP,91,20,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR16,"UD_color_panel",WS_TABSTOP,7,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR17,"UD_color_panel",WS_TABSTOP,19,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR18,"UD_color_panel",WS_TABSTOP,31,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR19,"UD_color_panel",WS_TABSTOP,43,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR20,"UD_color_panel",WS_TABSTOP,55,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR21,"UD_color_panel",WS_TABSTOP,67,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR22,"UD_color_panel",WS_TABSTOP,79,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR23,"UD_color_panel",WS_TABSTOP,91,33,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR24,"UD_color_panel",WS_TABSTOP,7,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR25,"UD_color_panel",WS_TABSTOP,19,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR26,"UD_color_panel",WS_TABSTOP,31,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR27,"UD_color_panel",WS_TABSTOP,43,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR28,"UD_color_panel",WS_TABSTOP,55,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR29,"UD_color_panel",WS_TABSTOP,67,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR30,"UD_color_panel",WS_TABSTOP,79,48,
+                    10,11
+    CONTROL         "Custom1",IDC_COLOR31,"UD_color_panel",WS_TABSTOP,91,48,
+                    10,11
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "IDD_HELP", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 199
+    END
+
+    "IDD_INDICATORS_LIST", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 192
+    END
+
+    "IDD_ANGLES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 368
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 152
+    END
+
+    "IDD_COLOR_CHOICE", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 111
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_ANGLES DLGINIT
+BEGIN
+    IDC_AZIM_SET_1, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_AZIM_SET_1, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_AZIM_SET_1, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ELEV_SET_1, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ELEV_SET_1, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ELEV_SET_1, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ROLL_SET_1, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ROLL_SET_1, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ROLL_SET_1, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ORDER_1, 0x403, 8, 0
+0x2d41, 0x453e, 0x3e2d, 0x0052, 
+    IDC_ORDER_1, 0x403, 8, 0
+0x2d41, 0x523e, 0x3e2d, 0x0045, 
+    IDC_ORDER_1, 0x403, 8, 0
+0x2d45, 0x413e, 0x3e2d, 0x0052, 
+    IDC_ORDER_1, 0x403, 8, 0
+0x2d45, 0x523e, 0x3e2d, 0x0041, 
+    IDC_ORDER_1, 0x403, 8, 0
+0x2d52, 0x413e, 0x3e2d, 0x0045, 
+    IDC_ORDER_1, 0x403, 8, 0
+0x2d52, 0x453e, 0x3e2d, 0x0041, 
+    IDC_AZIM_SET_2, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_AZIM_SET_2, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_AZIM_SET_2, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ELEV_SET_2, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ELEV_SET_2, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ELEV_SET_2, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ROLL_SET_2, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ROLL_SET_2, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ROLL_SET_2, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ORDER_2, 0x403, 8, 0
+0x2d41, 0x453e, 0x3e2d, 0x0052, 
+    IDC_ORDER_2, 0x403, 8, 0
+0x2d41, 0x523e, 0x3e2d, 0x0045, 
+    IDC_ORDER_2, 0x403, 8, 0
+0x2d45, 0x413e, 0x3e2d, 0x0052, 
+    IDC_ORDER_2, 0x403, 8, 0
+0x2d45, 0x523e, 0x3e2d, 0x0041, 
+    IDC_ORDER_2, 0x403, 8, 0
+0x2d52, 0x413e, 0x3e2d, 0x0045, 
+    IDC_ORDER_2, 0x403, 8, 0
+0x2d52, 0x453e, 0x3e2d, 0x0041, 
+    IDC_AZIM_SET_3, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_AZIM_SET_3, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_AZIM_SET_3, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ELEV_SET_3, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ELEV_SET_3, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ELEV_SET_3, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ROLL_SET_3, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ROLL_SET_3, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ROLL_SET_3, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ORDER_3, 0x403, 8, 0
+0x2d41, 0x453e, 0x3e2d, 0x0052, 
+    IDC_ORDER_3, 0x403, 8, 0
+0x2d41, 0x523e, 0x3e2d, 0x0045, 
+    IDC_ORDER_3, 0x403, 8, 0
+0x2d45, 0x413e, 0x3e2d, 0x0052, 
+    IDC_ORDER_3, 0x403, 8, 0
+0x2d45, 0x523e, 0x3e2d, 0x0041, 
+    IDC_ORDER_3, 0x403, 8, 0
+0x2d52, 0x413e, 0x3e2d, 0x0045, 
+    IDC_ORDER_3, 0x403, 8, 0
+0x2d52, 0x453e, 0x3e2d, 0x0041, 
+    IDC_AZIM_SET_4, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_AZIM_SET_4, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_AZIM_SET_4, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ELEV_SET_4, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ELEV_SET_4, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ELEV_SET_4, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ROLL_SET_4, 0x403, 4, 0
+0x4e4f, 0x0045, 
+    IDC_ROLL_SET_4, 0x403, 3, 0
+0x524f, "\000" 
+    IDC_ROLL_SET_4, 0x403, 4, 0
+0x4e41, 0x0044, 
+    IDC_ORDER_4, 0x403, 8, 0
+0x2d41, 0x453e, 0x3e2d, 0x0052, 
+    IDC_ORDER_4, 0x403, 8, 0
+0x2d41, 0x523e, 0x3e2d, 0x0045, 
+    IDC_ORDER_4, 0x403, 8, 0
+0x2d45, 0x413e, 0x3e2d, 0x0052, 
+    IDC_ORDER_4, 0x403, 8, 0
+0x2d45, 0x523e, 0x3e2d, 0x0041, 
+    IDC_ORDER_4, 0x403, 8, 0
+0x2d52, 0x413e, 0x3e2d, 0x0045, 
+    IDC_ORDER_4, 0x403, 8, 0
+0x2d52, 0x453e, 0x3e2d, 0x0041, 
+    IDC_AZIM_BASE_1, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_AZIM_BASE_1, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_AZIM_BASE_2, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_AZIM_BASE_2, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_AZIM_BASE_3, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_AZIM_BASE_3, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_AZIM_BASE_4, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_AZIM_BASE_4, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_ELEV_BASE_1, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_ELEV_BASE_1, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_ELEV_BASE_2, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_ELEV_BASE_2, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_ELEV_BASE_3, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_ELEV_BASE_3, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    IDC_ELEV_BASE_4, 0x403, 10, 0
+0xe2d1, 0xe1ee, 0xe4ee, 0xfbed, 0x00e9, 
+    IDC_ELEV_BASE_4, 0x403, 10, 0
+0x20ca, 0xeeed, 0xecf0, 0xebe0, 0x00e8, 
+    0
+END
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

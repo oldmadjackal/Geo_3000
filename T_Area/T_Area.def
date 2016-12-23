@@ -1,0 +1,4 @@
+LIBRARY T_Area
+   EXPORTS
+         Identify   DATA
+	 GetEntry   DATA
