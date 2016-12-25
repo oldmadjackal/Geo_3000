@@ -1,0 +1,50 @@
+;
+;  Антропоморфный манипулятор
+;
+#step 0.
+
+pivot cr rob apapap &
+rob ba base flat
+rob bm base flat .\Body.lib\Cylinder8  0.5 0.1
+;rob bs base flat  -0.25 0. -0.25
+rob ba leg tower
+rob bm leg tower .\Body.lib\Block 0.2 0.2 0.5
+rob bs leg tower  -0.1 0. -0.1
+rob ba link1 beam
+rob bm link1 beam .\Body.lib\Block 0.6 0.1 0.1
+rob bs link1 beam  -0.05 -0.05 -0.05
+rob ba link2 left_rail
+rob bm link2 left_rail .\Body.lib\Block 0.6 0.05 0.1
+rob bs link2 left_rail  -0.1 -0.05 -0.05
+rob ba link2 right_rail
+rob bm link2 right_rail .\Body.lib\Block 0.6 0.05 0.1
+rob bs link2 right_rail  0.05 -0.05 -0.05
+rob ba link3 beam
+rob bm link3 beam .\Body.lib\Block 0.3 0.1 0.2
+rob bs link3 beam  -0.05 -0.1 -0.05
+rob ba wrist beam
+rob bm wrist beam .\Body.lib\Block 0.25 0.1 0.1
+rob bs wrist beam  -0.05 -0.05 -0.05
+rob ba gripper arm
+rob bm gripper arm .\Body.lib\Cylinder8  0.1 0.15
+rob bs gripper arm  0. 0. 0. 0. -90.
+rob ba gripper shell_b
+rob bm gripper shell_b .\Body.lib\Cylinder8  0.1 0.4
+rob bs gripper shell_b  0. -0.2 0.2
+rob ba gripper shell_t
+rob bm gripper shell_t .\Body.lib\Cone8 0.1 0.2
+rob bs gripper shell_t  0.  0.2 0.2
+
+rob l leg     0.45
+rob l link1   0.5
+rob l link2   0.5
+rob l link3   0.2
+rob l wrist   0.2
+rob l gripper 0.2
+
+rob r/j leg     test=no
+rob r/j wrist   test=yes -120 120
+rob r/j gripper test=no
+rob r/j link1   test=yes  -70 120
+rob r/j link2   test=yes -120 120
+rob r/j link3   test=yes -120 120
