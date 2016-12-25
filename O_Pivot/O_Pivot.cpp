@@ -104,7 +104,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        " INFO/ <Имя> \n"
                        "   Выдать полную информацию по объекту в отдельное окно",
                        &RSS_Module_Pivot::cInfo },
- { "base",       "b", "#BASE (B) - задать базовую точку объекта",
+ { "check",      "ch", "#CHECK (CH) - проверка ограничений схемы",
+                       " CHECK <Имя> \n",
+                       &RSS_Module_Pivot::cCheck },
+ { "base",       "b",  "#BASE (B) - задать базовую точку объекта",
                        " BASE <Имя> <x> <y> <z>\n"
                        "   Задает базовую точку объекта\n"
                        " BASE/x <Имя> <x>\n"
@@ -116,7 +119,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        " BASE> <Имя>\n"
                        "   Задает клавиатурное управление базовой точкой объекта\n",
                        &RSS_Module_Pivot::cBase },
- { "angle",      "a", "#ANGLE (A) - задать углы ориентации объекта",
+ { "angle",      "a",  "#ANGLE (A) - задать углы ориентации объекта",
                        "           A (AZIMUTH)   - азимут\n"
                        "           E (ELEVATION) - возвышение\n"
                        " ANGLE <Имя> <a> <e>\n"
@@ -130,22 +133,22 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        " ANGLE> <Имя>\n"
                        "   Задает клавиатурное управление углами ориентации объекта\n",
                        &RSS_Module_Pivot::cAngle },
- { "degree",     "d", "#DEGREE (D) - таблица управления степенями подвижности",
+ { "degree",     "d",  "#DEGREE (D) - таблица управления степенями подвижности",
                        " DEGREE <Имя> \n",
                        &RSS_Module_Pivot::cDegree },
- { "link",       "l", "#LINK (L) - задание длины звена",
+ { "link",       "l",  "#LINK (L) - задание длины звена",
                        " LINK  <Имя объекта> <Имя звена> <Величина>\n" 
                        "             Задает длину звена\n" 
                        " LINK+ <Имя объекта> <Имя звена> <Величина>\n" 
                        "             Задает приращение длины звена\n",
                        &RSS_Module_Pivot::cLink },
- { "joint",      "j", "#JOINT (J) - задание угла в шарнире звена",
+ { "joint",      "j",  "#JOINT (J) - задание угла в шарнире звена",
                        " JOINT  <Имя объекта> <Имя звена> <Величина>\n" 
                        "             Задает угла в шарнире звена\n" 
                        " JOINT+ <Имя объекта> <Имя звена> <Величина>\n" 
                        "             Задает приращение угла в шарнире звена\n",
                        &RSS_Module_Pivot::cJoint },
- { "range",      "r", "#RANGE (R) - задание диапазонов изменения степеней подвижности",
+ { "range",      "r",  "#RANGE (R) - задание диапазонов изменения степеней подвижности",
                        " RANGE   <Имя объекта>\n" 
                        "             Вызов диалогового окна задания диапазонов\n" 
                        " RANGE/J <Имя объекта> <Имя звена> <Флаг проверки> <Минимум> <Максимум>\n" 
@@ -153,7 +156,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        " RANGE/L <Имя объекта> <Имя звена> <Флаг проверки> <Минимум> <Максимум>\n"
                        "             Задает диапазон для длины звена\n",
                        &RSS_Module_Pivot::cRange },
- { "keys",       "k", "#KEYS (K) - назначение управляющих клавиш",
+ { "keys",       "k",  "#KEYS (K) - назначение управляющих клавиш",
                        " KEYS <Имя объекта> \n",
                        &RSS_Module_Pivot::cKeys },
  { "body",       "bo", "#BODY (BO) - назначение тел на звенья",
@@ -683,6 +686,64 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*-------------------------------------------------------------------*/
 
    return(status) ;
+}
+
+
+/********************************************************************/
+/*								    */
+/*               Реализация инструкции CHECK                        */
+/*								    */
+/*     CHECK  <Имя объекта>                                         */
+
+  int  RSS_Module_Pivot::cCheck(char *cmd)
+
+{
+#define   _PARS_MAX   16
+      RSS_Object_Pivot *object ;
+ RSS_Object_Pivot_Link *link ;
+                  char *pars[_PARS_MAX] ;
+                  char *name ;
+                   int  delta_flag ;        /* Флаг режима приращений */
+                  char *end ;
+                   int  i ;
+
+/*-------------------------------------- Дешифровка командной строки */
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */        
+    for(i=0 ; i<_PARS_MAX ; i++)  pars[i]=NULL ;
+
+    for(end=cmd, i=0 ; i<_PARS_MAX ; end++, i++) {
+      
+                pars[i]=end ;
+                   end =strchr(pars[i], ' ') ;
+                if(end==NULL)  break ;
+                  *end=0 ;
+                                                 }
+
+                     name= pars[0] ;
+
+/*------------------------------------------- Контроль имени объекта */
+
+    if(name   ==NULL ||
+       name[0]==  0    ) {                                          /* Если имя не задано... */
+                           SEND_ERROR("Не задано имя объекта. \n") ;
+                                     return(-1) ;
+                         }
+
+       object=FindObject(name) ;                                    /* Ищем объект по имени */
+    if(object==NULL)  return(-1) ;
+
+/*------------------------------------------------ Перерасчет робота */
+
+              object->iRobotSkeleton() ;
+              object->iRobotDegrees (1) ;                           /* Проверка диапазонов степеней подвижности */
+
+                this->kernel->vShow(NULL) ;
+
+/*-------------------------------------------------------------------*/
+
+#undef   _PARS_MAX
+
+   return(0) ;
 }
 
 
@@ -3360,16 +3421,26 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                     double  value_max )
 
 {
+  int  i ;
+
+
+  for(i=0 ; i<2 ; i++) {
 
     if(value_min<=value_max) {
-	 if(value<value_min ||
-	    value>value_max   ) return(1) ;
+	 if(value>=value_min &&
+	    value<=value_max   ) return(0) ;
 			     }
     else                     {
-	 if(value>value_min &&
-	    value<value_max   ) return(1) ;
+	 if(value<=value_min &&
+	    value>=value_max   ) return(0) ;
 			     }
-  return(0) ;
+
+    if(value>0)  value-=360. ;
+    else         value+=360. ;
+
+                       }
+
+  return(1) ;
 }
 
 

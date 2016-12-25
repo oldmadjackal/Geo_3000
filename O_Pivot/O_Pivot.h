@@ -198,6 +198,7 @@
                      int  cHelp          (char *) ;         /* Инструкция HELP */
                      int  cCreate        (char *) ;         /* Инструкция CREATE */
                      int  cInfo          (char *) ;         /* Инструкция INFO */
+                     int  cCheck         (char *) ;         /* Инструкция CHECK */
                      int  cBase          (char *) ;         /* Инструкция BASE */
                      int  cAngle         (char *) ;         /* Инструкция ANGLE */
                      int  cDegree        (char *) ;         /* Инструкция DEGREE */
