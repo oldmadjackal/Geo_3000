@@ -30,10 +30,10 @@ m2 base 1.6 0.45 -2.2
 
 cross ex rob.base
 cross ex rob.leg
-cross ex rob.link1
+;cross ex rob.link1
 cross ex rob.link2
-cross ex rob.link3
-cross ex rob.wrist
+;cross ex rob.link3
+;cross ex rob.wrist
 
 pset cr set1
 pset cr set2
