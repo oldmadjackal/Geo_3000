@@ -674,12 +674,14 @@ BOOL APIENTRY DllMain( HANDLE hModule,
             RSS_Object_Path  *path_object ;
                        char   action[128] ;
                        char  *end ;
+                       char  *arg ;
                   RSS_Joint   degrees[50] ;        /* Вектор степеней подвижности объекта */
                   RSS_Joint   degrees_prv[50] ;
                         int   cnt ;                /* Число степеней подвижности */
                         int   cnt_prv ;
                         int   status ;
                        char   text[256] ;
+                       char   keys[256] ;
                        char   desc[1024] ;
                         int   i ;
                         int   j ;
@@ -714,12 +716,17 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                               }
                   *end=0 ;
 
-                if(strchr(cmd, 'd')!=NULL ||
-                   strchr(cmd, 'D')!=NULL   )  mDraw=1 ;
-                if(strchr(cmd, 'r')!=NULL ||
-                   strchr(cmd, 'R')!=NULL   )  reduction_flag=1 ;
-                if(strchr(cmd, 'q')!=NULL ||
-                   strchr(cmd, 'Q')!=NULL   )  quit_flag=1 ;
+                       memset(keys, 0, sizeof(keys)) ;
+                      strncpy(keys, cmd, sizeof(keys)-1) ;
+                   arg=strchr(keys, ':') ;
+                if(arg!=NULL)  *arg=0 ;
+
+                if(strchr(keys, 'd')!=NULL ||
+                   strchr(keys, 'D')!=NULL   )  mDraw=1 ;
+                if(strchr(keys, 'r')!=NULL ||
+                   strchr(keys, 'R')!=NULL   )  reduction_flag=1 ;
+                if(strchr(keys, 'q')!=NULL ||
+                   strchr(keys, 'Q')!=NULL   )  quit_flag=1 ;
 
                    traj_name=strchr(cmd, ':') ;
                 if(traj_name!=NULL) {  strcpy(save_name, traj_name+1) ;
@@ -920,6 +927,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                         }
 
     if( reduction_flag) {
+                           iReducePath() ;                          /* Применяем двойной проход алгоритма сокращения */
                            iReducePath() ;
                         }
 /*------------------------------------------ Демонстрация траектории */
