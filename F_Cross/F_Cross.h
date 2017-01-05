@@ -188,6 +188,12 @@
                                          RSS_Feature_Cross_Mark *) ;
                      int  iOverallTest  (RSS_Feature_Cross_Dim *,   /* Проверка пересечение габаритов */
                                          RSS_Feature_Cross_Dim * ) ;
+                     int  iFacetsTest   (RSS_Feature_Cross_Body *,  /* Проверка пересечения граней */
+                                         RSS_Feature_Cross_Body * ) ;
+                     int  iToFlat       (RSS_Feature_Cross_Vertex *,/* Расчет матрицы разворота плоскости x0z в плоскость точек P0-P1-P2 */
+                                         RSS_Feature_Cross_Vertex *,
+                                         RSS_Feature_Cross_Vertex *,
+                                                         Matrix2d * ) ;
 
 	                  RSS_Feature_Cross() ;                     /* Конструктор */
 	                 ~RSS_Feature_Cross() ;                     /* Деструктор */

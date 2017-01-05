@@ -1263,7 +1263,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
        if(!iOverallTest(& this->Bodies[i].overall,                  /* Если габариты тел не пересекаются... */
                         &CROSS->Bodies[j].overall ))  continue;     
-        
+
+       if(!iFacetsTest(& this->Bodies[i],                           /* Если грани тел не пересекаются... */
+                       &CROSS->Bodies[j] ))  continue;     
+
                    return(_RSS_OBJECT_COLLISION_EXTERNAL) ;
 
                                           }                         /* CONTINUE.2 */
@@ -1450,7 +1453,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /********************************************************************/
 /*								    */
-/*                    Проверка пересечение габаритов                */ 
+/*                    Проверка пересечения габаритов                */ 
 
     int RSS_Feature_Cross::iOverallTest(RSS_Feature_Cross_Dim *o1,
                                         RSS_Feature_Cross_Dim *o2 )
@@ -1463,6 +1466,471 @@ BOOL APIENTRY DllMain( HANDLE hModule,
      o2->z_min>o1->z_max   )  return(0) ;
 
   return(1) ;
+}
+
+
+/********************************************************************/
+/*								    */
+/*                    Проверка пересечения граней                   */ 
+
+    int RSS_Feature_Cross::iFacetsTest(RSS_Feature_Cross_Body *b1,
+                                       RSS_Feature_Cross_Body *b2 )
+{
+    Matrix2d  SummaryA ;
+    Matrix2d  SummaryP ;
+    Matrix2d  Point ;
+      double  x0, y0, z0 ;
+      double  x1, y1, z1 ;
+      double  x2, y2, z2 ;
+      double  c_x[2], c_z[2] ;    /* Точки пересечения ребер с плоскостью грани */
+      double  y ;
+      double  v1, v2 ;
+         int  cross ;
+         int  cross1, cross2 ;
+         int  n1 ;
+         int  n2 ;
+         int  m1[2] ;  /* Индексы вершин ребер "активного" тела, */
+         int  m2[2] ;  /*  пересекающих грань "пассивного" тела  */
+         int  m ;
+         int  ma ;     /* Индекс "правой" вершины ребра "пассивного" тела, пересекающего грань "активного" тела */
+         int  i ;
+
+#define  F1     (b1->Facets[n1])
+#define  F2     (b2->Facets[n2])
+#define  V1      b1->Vertexes
+#define  V2      b2->Vertexes
+
+/*------------------------------------------------------- Подготовка */
+
+/*---------------------------------- Перебор граней "активного" тела */
+
+    for(n1=0 ; n1<b1->Facets_cnt ; n1++) {
+
+         F1.overall.x_min=V1[F1.vertexes[0]].x_abs ;                /* Определение габаритного размера */
+         F1.overall.x_max=V1[F1.vertexes[0]].x_abs ;
+         F1.overall.y_min=V1[F1.vertexes[0]].y_abs ;
+         F1.overall.y_max=V1[F1.vertexes[0]].y_abs ;
+         F1.overall.z_min=V1[F1.vertexes[0]].z_abs ;
+         F1.overall.z_max=V1[F1.vertexes[0]].z_abs ;
+
+     for(i=1 ; i<F1.vertexes_cnt ; i++) {
+       if(V1[F1.vertexes[i]].x_abs<F1.overall.x_min)  F1.overall.x_min=V1[F1.vertexes[i]].x_abs ;
+       if(V1[F1.vertexes[i]].x_abs>F1.overall.x_max)  F1.overall.x_max=V1[F1.vertexes[i]].x_abs ;
+       if(V1[F1.vertexes[i]].y_abs<F1.overall.y_min)  F1.overall.y_min=V1[F1.vertexes[i]].y_abs ;
+       if(V1[F1.vertexes[i]].y_abs>F1.overall.y_max)  F1.overall.y_max=V1[F1.vertexes[i]].y_abs ;
+       if(V1[F1.vertexes[i]].z_abs<F1.overall.z_min)  F1.overall.z_min=V1[F1.vertexes[i]].z_abs ;
+       if(V1[F1.vertexes[i]].z_abs>F1.overall.z_min)  F1.overall.z_max=V1[F1.vertexes[i]].z_abs ;
+                                        }
+/*--------------------------------- Перебор граней "пассивного" тела */
+
+      for(n2=0 ; n2<b2->Facets_cnt ; n2++) {
+/*- - - - - - - - - - - - - - - - - - - - - -  Проверка по габаритам */
+             F2.overall.x_min=V2[F2.vertexes[0]].x_abs ;            /* Определение габаритного размера */
+             F2.overall.x_max=V2[F2.vertexes[0]].x_abs ;
+             F2.overall.y_min=V2[F2.vertexes[0]].y_abs ;
+             F2.overall.y_max=V2[F2.vertexes[0]].y_abs ;
+             F2.overall.z_min=V2[F2.vertexes[0]].z_abs ;
+             F2.overall.z_max=V2[F2.vertexes[0]].z_abs ;
+
+         for(i=1 ; i<F2.vertexes_cnt ; i++) {
+           if(V2[F2.vertexes[i]].x_abs<F2.overall.x_min)  F2.overall.x_min=V2[F2.vertexes[i]].x_abs ;
+           if(V2[F2.vertexes[i]].x_abs>F2.overall.x_max)  F2.overall.x_max=V2[F2.vertexes[i]].x_abs ;
+           if(V2[F2.vertexes[i]].y_abs<F2.overall.y_min)  F2.overall.y_min=V2[F2.vertexes[i]].y_abs ;
+           if(V2[F2.vertexes[i]].y_abs>F2.overall.y_max)  F2.overall.y_max=V2[F2.vertexes[i]].y_abs ;
+           if(V2[F2.vertexes[i]].z_abs<F2.overall.z_min)  F2.overall.z_min=V2[F2.vertexes[i]].z_abs ;
+           if(V2[F2.vertexes[i]].z_abs>F2.overall.z_min)  F2.overall.z_max=V2[F2.vertexes[i]].z_abs ;
+                                            }
+
+           if(F1.overall.x_min>F2.overall.x_max || 
+              F1.overall.x_max<F2.overall.x_min ||
+              F1.overall.y_min>F2.overall.y_max ||
+              F1.overall.y_max<F2.overall.y_min ||
+              F1.overall.z_min>F2.overall.z_max || 
+              F1.overall.z_max<F2.overall.z_min   )  continue ;
+/*- - - - - - - - - - - - - - Проверка пересечения плоскости А-грани */
+                   SummaryA.LoadZero(4,4) ;
+
+              iToFlat(&V1[F1.vertexes[0]],
+                      &V1[F1.vertexes[1]],
+                      &V1[F1.vertexes[2]], &SummaryA) ;
+
+                          cross=0 ;
+
+         for(i=0 ; i<F2.vertexes_cnt ; i++) {
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, V2[F2.vertexes[i]].x_abs) ;
+                 Point.SetCell (1, 0, V2[F2.vertexes[i]].y_abs) ;
+                 Point.SetCell (2, 0, V2[F2.vertexes[i]].z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&SummaryA, &Point) ;
+               y=Point.GetCell (1, 0) ;
+
+            if(y>0) {
+                       if(cross<0 ) {  ma=i ;  break ;  }
+                       else            cross=1 ;
+                    }
+            if(y<0) {
+                       if(cross>0 ) {  ma=i ;  break ;  }
+                       else          cross=-1 ;
+                    }
+                                            }
+
+              if(i>=F2.vertexes_cnt)  return(0) ;
+/*- - - - - - - - - - - - - - Проверка пересечения плоскости П-грани */
+                   SummaryP.LoadZero(4,4) ;
+
+              iToFlat(&V2[F2.vertexes[0]],
+                      &V2[F2.vertexes[1]],
+                      &V2[F2.vertexes[2]], &SummaryP) ;
+
+                          cross=0 ;
+                              m=0 ;
+
+         for(i=0 ; i<F1.vertexes_cnt ; i++) {
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, V1[F1.vertexes[i]].x_abs) ;
+                 Point.SetCell (1, 0, V1[F1.vertexes[i]].y_abs) ;
+                 Point.SetCell (2, 0, V1[F1.vertexes[i]].z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&SummaryP, &Point) ;
+               y=Point.GetCell (1, 0) ;
+
+            if(y>0) {
+                       if(cross<0 ) {
+                                       m1[m]=i-1 ;
+                                       m2[m]=i ;
+                                          m++ ;
+                                       if(m>1)  break ;
+                                    }
+                          cross=1 ;
+                    }
+            if(y<0) {
+                       if(cross>0 ) {
+                                       m1[m]=i-1 ;
+                                       m2[m]=i ;
+                                          m++ ;
+                                       if(m>1)  break ;
+                                    }
+                          cross=-1 ;
+                    }
+                                            }
+
+              if(m==0)  return(0) ;
+
+              if(m==1) {
+                          m1[1]= 0 ;
+                          m2[1]=F1.vertexes_cnt-1 ;
+                       }
+/*- - - - - - - - - - - Точки пересечения ребер с плоскостью П-грани */
+         for(i=0 ; i<2 ; i++) {
+                                         m=F1.vertexes[m1[i]] ;
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, V1[m].x_abs) ;
+                 Point.SetCell (1, 0, V1[m].y_abs) ;
+                 Point.SetCell (2, 0, V1[m].z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&SummaryP, &Point) ;
+              x1=Point.GetCell (0, 0) ;
+              y1=Point.GetCell (1, 0) ;
+              z1=Point.GetCell (2, 0) ;
+
+                                         m=F1.vertexes[m2[i]] ;
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, V1[m].x_abs) ;
+                 Point.SetCell (1, 0, V1[m].y_abs) ;
+                 Point.SetCell (2, 0, V1[m].z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&SummaryP, &Point) ;
+              x2=Point.GetCell (0, 0) ;
+              y2=Point.GetCell (1, 0) ;
+              z2=Point.GetCell (2, 0) ;
+
+           if(y1!=y2) {
+                         c_x[i]=x1-y1*(x2-x1)/(y2-y1) ;
+                         c_z[i]=z1-y1*(z2-z1)/(y2-y1) ;
+                      }
+           else       {
+                         c_x[i]=x2 ;
+                         c_z[i]=z2 ;
+                      }
+                              }
+/*- - - Проверка нахождения точек пересечения внутри контура П-грани */
+/* Проверяем, что моменты цепочки векторов ребер грани относительно  */
+/*  хотя бы одной из точек пересечения имеют один и тот же знак      */
+                 cross1=1 ;
+                 cross2=1 ;
+                     v1=0 ;
+                     v2=0 ;
+
+         for(i=0 ; i<=F2.vertexes_cnt ; i++) {
+
+           if(i<F2.vertexes_cnt) {
+
+                   Point.LoadZero(4, 1) ;
+                   Point.SetCell (0, 0, V2[F2.vertexes[i]].x_abs) ;
+                   Point.SetCell (1, 0, V2[F2.vertexes[i]].y_abs) ;
+                   Point.SetCell (2, 0, V2[F2.vertexes[i]].z_abs) ;
+                   Point.SetCell (3, 0,  1) ;
+                   Point.LoadMul (&SummaryP, &Point) ;
+
+                 x1=x2 ;
+                 z1=z2 ;
+                 x2=Point.GetCell (0, 0) ;
+                 y =Point.GetCell (1, 0) ;
+                 z2=Point.GetCell (2, 0) ;
+                                 }
+           else                  {
+                 x1=x2 ;
+                 z1=z2 ;
+                 x2=x0 ;
+                 z2=z0 ;
+                                 }
+
+           if(i==0) {   x0=x2 ;
+                        z0=z2 ;
+                       continue ;  }
+
+              y1=(z1-c_z[0])*(x2-x1)-(x1-c_x[0])*(z2-z1) ;
+              y2=(z1-c_z[1])*(x2-x1)-(x1-c_x[1])*(z2-z1) ;
+
+           if(v1*y1<0)  cross1=0 ;
+           if(v2*y2<0)  cross2=0 ;
+
+              v1=y1 ; 
+              v2=y2 ; 
+
+           if(cross1+cross2==0)  break ;         
+                                            }
+
+           if(cross1+cross2>0)  return(1) ;        
+/*- - - - - - - - - - - Точки пересечения ребер с плоскостью А-грани */
+                                         m=F2.vertexes[ma-1] ;
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, V2[m].x_abs) ;
+                 Point.SetCell (1, 0, V2[m].y_abs) ;
+                 Point.SetCell (2, 0, V2[m].z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&SummaryA, &Point) ;
+              x1=Point.GetCell (0, 0) ;
+              y1=Point.GetCell (1, 0) ;
+              z1=Point.GetCell (2, 0) ;
+
+                                         m=F2.vertexes[ma] ;
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, V2[m].x_abs) ;
+                 Point.SetCell (1, 0, V2[m].y_abs) ;
+                 Point.SetCell (2, 0, V2[m].z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&SummaryA, &Point) ;
+              x2=Point.GetCell (0, 0) ;
+              y2=Point.GetCell (1, 0) ;
+              z2=Point.GetCell (2, 0) ;
+
+           if(y1!=y2) {
+                         c_x[0]=x1-y1*(x2-x1)/(y2-y1) ;
+                         c_z[0]=z1-y1*(z2-z1)/(y2-y1) ;
+                      }
+           else       {
+                         c_x[0]=x2 ;
+                         c_z[0]=z2 ;
+                      }
+/*- - - Проверка нахождения точек пересечения внутри контура П-грани */
+/* Проверяем, что моменты цепочки векторов ребер грани относительно  */
+/*  хотя бы одной из точек пересечения имеют один и тот же знак      */
+                 cross1=1 ;
+                     v1=0 ;
+
+         for(i=0 ; i<=F1.vertexes_cnt ; i++) {
+
+           if(i<F1.vertexes_cnt) {
+
+                   Point.LoadZero(4, 1) ;
+                   Point.SetCell (0, 0, V1[F1.vertexes[i]].x_abs) ;
+                   Point.SetCell (1, 0, V1[F1.vertexes[i]].y_abs) ;
+                   Point.SetCell (2, 0, V1[F1.vertexes[i]].z_abs) ;
+                   Point.SetCell (3, 0,  1) ;
+                   Point.LoadMul (&SummaryA, &Point) ;
+
+                 x1=x2 ;
+                 z1=z2 ;
+                 x2=Point.GetCell (0, 0) ;
+                 y =Point.GetCell (1, 0) ;
+                 z2=Point.GetCell (2, 0) ;
+                                 }
+           else                  {
+                 x1=x2 ;
+                 z1=z2 ;
+                 x2=x0 ;
+                 z2=z0 ;
+                                 }
+
+           if(i==0) {   x0=x2 ;
+                        z0=z2 ;
+                       continue ;  }
+
+              y1=(z1-c_z[0])*(x2-x1)-(x1-c_x[0])*(z2-z1) ;
+
+           if(v1*y1<0) {  cross1=0 ;  break ;  }
+
+              v1=y1 ; 
+                                            }
+
+           if(cross1>0)  return(1) ;
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+                                           }
+/*---------------------------------- Перебор граней "активного" тела */
+                                         }
+/*-------------------------------------------------------------------*/
+
+#undef  F1
+#undef  F2
+#undef  V1
+#undef  V2
+
+  return(0) ;
+}
+
+
+/********************************************************************/
+/*								    */
+/*             Расчет матрицы разворота плоскости x0z               */ 
+/*                   в плоскость точек P0-P1-P2                     */
+
+    int RSS_Feature_Cross::iToFlat(RSS_Feature_Cross_Vertex *p0,
+                                   RSS_Feature_Cross_Vertex *p1,
+                                   RSS_Feature_Cross_Vertex *p2,
+                                                   Matrix2d *Transform)
+
+{
+    Matrix2d  Summary ;
+    Matrix2d  Local ;
+    Matrix2d  Point ;
+      double  x1, y1, z1 ;
+      double  x2, y2, z2 ;
+      double  v ;
+      double  angle ;
+
+/*------------------------------------------------- Сдвиг в точку P0 */
+
+                Summary.LoadE      (4, 4) ;
+                                                                    /* Точку 0 берем за базовую */ 
+                  Local.Load4d_base(-p0->x_abs,
+                                    -p0->y_abs,
+                                    -p0->z_abs ) ;
+                Summary.LoadMul    (&Local, &Summary) ;
+
+                      x1=p1->x_abs-p0->x_abs ;
+                      x2=p2->x_abs-p0->x_abs ;
+                      y1=p1->y_abs-p0->y_abs ;
+                      y2=p2->y_abs-p0->y_abs ;
+                      z1=p1->z_abs-p0->z_abs ;
+                      z2=p2->z_abs-p0->z_abs ;
+
+   if(fabs(z1)<fabs(z2)) { 
+                            v=x1 ;  x1=x2 ; x2=v ;
+                            v=y1 ;  y1=y2 ; y2=v ;
+                            v=z1 ;  z1=z2 ; z2=v ;
+                         }
+/*----------------------------------------- Поворот вокруг Y к оси Z */
+
+   if(z1!=0.) {
+                          v=z1/sqrt(x1*x1+z1*z1) ;
+                      angle=asin(v)*_RAD_TO_GRD ;
+
+                  Local.Load4d_azim(-angle) ;
+                Summary.LoadMul    (&Local, &Summary) ;
+
+                      Point.LoadZero(4, 1) ;                        /* Перерассчитываем координаты точки 1 */
+                      Point.SetCell (0, 0, x1) ;
+                      Point.SetCell (1, 0, y1) ;
+                      Point.SetCell (2, 0, z1) ;
+                      Point.SetCell (3, 0,  1) ;
+                      Point.LoadMul (&Local, &Point) ;
+                   x1=Point.GetCell (0, 0) ;
+                   y1=Point.GetCell (1, 0) ;
+                   z1=Point.GetCell (2, 0) ;
+
+                      Point.LoadZero(4, 1) ;                        /* Перерассчитываем координаты точки 2 */
+                      Point.SetCell (0, 0, x2) ;
+                      Point.SetCell (1, 0, y2) ;
+                      Point.SetCell (2, 0, z2) ;
+                      Point.SetCell (3, 0,  1) ;
+                      Point.LoadMul (&Local, &Point) ;
+                   x2=Point.GetCell (0, 0) ;
+                   y2=Point.GetCell (1, 0) ;
+                   z2=Point.GetCell (2, 0) ;
+              }
+/*----------------------------------------- Поворот вокруг Z к оси X */
+
+   if(y1!=0.) {
+                          v=y1/sqrt(x1*x1+y1*y1) ;
+                      angle=asin(v)*_RAD_TO_GRD ;
+
+                  Local.Load4d_roll(-angle) ;
+                Summary.LoadMul    (&Local, &Summary) ;
+
+                      Point.LoadZero(4, 1) ;                        /* Перерассчитываем координаты точки 2 */
+                      Point.SetCell (0, 0, x2) ;
+                      Point.SetCell (1, 0, y2) ;
+                      Point.SetCell (2, 0, z2) ;
+                      Point.SetCell (3, 0,  1) ;
+                      Point.LoadMul (&Local, &Point) ;
+                   x2=Point.GetCell (0, 0) ;
+                   y2=Point.GetCell (1, 0) ;
+                   z2=Point.GetCell (2, 0) ;
+              }
+/*----------------------------------------- Поворот вокруг X к оси Y */
+
+   if(y2!=0.) {
+                          v=y2/sqrt(y2*y2+z2*z2) ;
+                      angle=asin(v)*_RAD_TO_GRD ;
+
+                  Local.Load4d_elev(-angle) ;
+                Summary.LoadMul    (&Local, &Summary) ;
+              }
+/*--------------------------------------------------------- Проверка */
+/*
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, p0->x_abs) ;
+                 Point.SetCell (1, 0, p0->y_abs) ;
+                 Point.SetCell (2, 0, p0->z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&Summary, &Point) ;
+              x1=Point.GetCell (0, 0) ;
+              y1=Point.GetCell (1, 0) ;
+              z1=Point.GetCell (2, 0) ;
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, p1->x_abs) ;
+                 Point.SetCell (1, 0, p1->y_abs) ;
+                 Point.SetCell (2, 0, p1->z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&Summary, &Point) ;
+              x1=Point.GetCell (0, 0) ;
+              y1=Point.GetCell (1, 0) ;
+              z1=Point.GetCell (2, 0) ;
+
+                 Point.LoadZero(4, 1) ;
+                 Point.SetCell (0, 0, p2->x_abs) ;
+                 Point.SetCell (1, 0, p2->y_abs) ;
+                 Point.SetCell (2, 0, p2->z_abs) ;
+                 Point.SetCell (3, 0,  1) ;
+                 Point.LoadMul (&Summary, &Point) ;
+              x1=Point.GetCell (0, 0) ;
+              y1=Point.GetCell (1, 0) ;
+              z1=Point.GetCell (2, 0) ;
+*/
+/*-------------------------------------------------------------------*/
+
+          Transform->Copy(&Summary) ;
+
+   return(0) ;
 }
 
 
@@ -1546,7 +2014,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                       Point.SetCell (2, 0, V[j].z) ;
                       Point.SetCell (3, 0,   1   ) ;
 
-                      Point.LoadMul (&Summary, &Point) ;            /* Рассчитываем координаы точки */
+                      Point.LoadMul (&Summary, &Point) ;            /* Рассчитываем координаты точки */
                                                                     /*  в абсолютной СК */
            V[j].x_abs=Point.GetCell (0, 0) ;
            V[j].y_abs=Point.GetCell (1, 0) ;

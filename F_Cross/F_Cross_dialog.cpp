@@ -11,6 +11,7 @@
 #include <io.h>
 
 #include "d:\_Projects\_Libraries\controls.h"
+#include "d:\_Projects\_Libraries\matrix.h"
 
 #include "..\RSS_Feature\RSS_Feature.h"
 #include "..\RSS_Object\RSS_Object.h"
