@@ -2196,7 +2196,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
      if(mCheck) {
                      status=OBJECT->vCheckFeatures(NULL) ;          /* Проверяем непротиворечивость свойств */
                    if(status)  return(-1) ;                         /* Если нарущение непротиворечивости свойств... */
-                }  
+                }
 /*- - - - - - - - - - - - - - - - - - - - - - - -  Отображение сцены */
      if(mDraw)  this->kernel->vShow(NULL) ;
 /*- - - - - - - - - - - - - - - - - - - -  Трассировка целевой точки */
