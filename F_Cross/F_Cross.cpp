@@ -1576,7 +1576,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                     }
                                             }
 
-              if(i>=F2.vertexes_cnt)  return(0) ;
+              if(i>=F2.vertexes_cnt)  continue ;
 /*- - - - - - - - - - - - - - Проверка пересечения плоскости П-грани */
                    SummaryP.LoadZero(4,4) ;
 
@@ -1617,7 +1617,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                     }
                                             }
 
-              if(m==0)  return(0) ;
+              if(m==0)  continue ;
 
               if(m==1) {
                           m1[1]= 0 ;
