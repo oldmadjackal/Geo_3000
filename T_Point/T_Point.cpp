@@ -1287,7 +1287,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                              object->vSetTargetPoint(&Target, 1) ; /* Уст.целевую точку */
                              object->vErrorMessage  (0) ;
                       status=object->vSolveByTarget () ;           /* Решаем обратную задачу */
-         if(!status)  status=object->vCheckFeatures (NULL) ;       /* Проверяем непротиворечивость свойств */     
+         if(!status)  status=object->vCheckFeatures (NULL) ;       /* Проверяем непротиворечивость свойств */
                              object->vErrorMessage  (1) ;
 /*- - - - - - - - - - - - - - - - - - - - Запись результатов анализа */
                                    Indicator->scan     =step*i ;
