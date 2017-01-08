@@ -442,7 +442,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                     SendMessage(ITEM(IDC_STATUS_INFO),
                                   WM_SETFONT, (WPARAM)font, 0) ;
 /*- - - - - - - - - - - - - - - - -  Инициализация значеий элементов */
-          SETs(IDC_COMMAND, "@tests\\path_1.geo") ;
+          SETs(IDC_COMMAND, "@tests\\point_1.geo") ;
 /*- - - - - - - - - - - - - - - - - - - - - - - Инициализация фокуса */
                           SetFocus(ITEM(IDC_COMMAND)) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
@@ -1063,10 +1063,10 @@ typedef  struct {
 
 /*--------------------------------- Подстановка объекта по-умолчанию */
 
-   if(strchr(command, '~')!=NULL) {
+   if(strchr(command, '*')!=NULL) {
 
         do {
-                 end=strchr(command, '~') ;
+                 end=strchr(command, '*') ;
               if(end==NULL)  break ;
 
                   memmove(end+strlen(__object_def), end+1, strlen(end+1)+1) ;
