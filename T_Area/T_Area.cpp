@@ -1393,11 +1393,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                         int  i ;
 
 /*-------------------------------------- Дешифровка командной строки */
-/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */        
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */
     for(i=0 ; i<_PARS_MAX ; i++)  pars[i]=NULL ;
 
     for(end=cmd, i=0 ; i<_PARS_MAX ; end++, i++) {
-      
+
                 pars[i]=end ;
                    end =strchr(pars[i], ' ') ;
                 if(end==NULL)  break ;
@@ -1418,6 +1418,12 @@ BOOL APIENTRY DllMain( HANDLE hModule,
        Indicator=FindIndicator(name) ;                              /* Ищем объект по имени */
     if(Indicator==NULL)  return(-1) ;
 
+/*--------------------------------------- Считывание данных из файла */
+
+  if(pars[1]!=NULL) {
+                             status=iReadTableFile(Indicator, pars[1]) ;
+                      return(status) ;
+                    }
 /*----------------------------------------------- Проведение диалога */
 
       status=DialogBoxIndirectParam( GetModuleHandle(NULL),
@@ -2061,6 +2067,190 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /*********************************************************************/
 /*								     */
+/*              Считывание файла описания таблицы углов              */
+
+  int  RSS_Module_Area::iReadTableFile(
+                           RSS_Module_Area_Indicator *Indicator,
+                                                char *path)
+{
+                    FILE *file ;
+                    char  text[4096] ;
+                    char *words[10] ;
+                    char *end ;
+                     int  cR, cG, cB ;
+   RSS_Module_Area_Range  azim_range ;
+   RSS_Module_Area_Range  elev_range ;
+   RSS_Module_Area_Range  roll_range ;
+   RSS_Module_Area_Range *range ;
+                     int  row ;
+                     int  n ;
+                     int  i ;
+
+/*--------------------------------------------------- Открытие файла */
+
+       file=fopen(path, "rt") ;
+    if(file==NULL) {
+                       SEND_ERROR("Ошибка открытия файла") ;
+                                       return(-1) ;
+                   }
+/*------------------------------------------------ Считывание данных */
+/* Ожидаемая структура строки:                                       */
+/*    <RGB> <ANGLE_1> <ANGLE_2> <ANGLE_3>                            */
+/* где                                                               */
+/*  <RGB>     - RGB:n.n.n                                            */
+/*  <ANGLE_n> - {A|E|R}:{And|Or|List}:{min/max|a1,...,aN}:{ABS|NORM} */
+
+         memset(Indicator->angles, 0, sizeof(Indicator->angles)) ;
+
+                      row=0 ;
+                        n=0 ;
+
+   while(1) {                                                       /* CIRCLE.1 - Построчно читаем файл */
+               memset(&azim_range, 0, sizeof(azim_range)) ;
+               memset(&elev_range, 0, sizeof(elev_range)) ;
+               memset(&roll_range, 0, sizeof(roll_range)) ;
+                       azim_range.type=-1 ;
+                       elev_range.type=-1 ;
+                       roll_range.type=-1 ;
+/*- - - - - - - - - - - - - - - - - - -  Считывание очередной строки */
+                      row++ ;
+
+                      memset(text, 0, sizeof(text)) ;
+                   end=fgets(text, sizeof(text)-1, file) ;          /* Считываем строку */
+                if(end==NULL)  break ;
+
+            if(text[0]==';')  continue ;                            /* Проходим комментарий */
+
+                end=text+strlen(text)-1 ;                           /* Удаляем символ конца строки */
+            if(*end=='\n')  *end=0 ;
+/*- - - - - - - - - - - - - - - - Обработка спецификатора шага STEP= */
+      if(!memicmp(text, "STEP=", 5)) {
+
+                    Indicator->angle_step=strtod(text+5, &end) ;
+
+                                         continue ;
+                                     } 
+/*- - - - - - - - - - - - - - - - - - - - - - Разбор строки на слова */
+           memset(words, 0, sizeof(words)) ;
+
+                   i = 0 ;
+             words[i]=strtok(text, " \t") ;
+
+       while(words[i]!=NULL && i<5) {
+                   i++ ;
+             words[i]=strtok(NULL, " \t") ;
+                                    }
+
+      if(words[3]==NULL ||
+         words[4]!=NULL   ) {
+                       sprintf(text, "Строка %d - строка должна содержать ровно 4 слова", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                            }
+/*- - - - - - - - - - - - - - - - - - - - - - - Обработка RGB-секции */
+      if(memicmp(words[0], "RGB:", 4)){
+                       sprintf(text, "Строка %d - первым должен следовать RGB-спецификатор", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                                      }
+
+           cR=strtoul(words[0]+4, &end, 10) ;
+      if(*end!='.'){
+                       sprintf(text, "Строка %d - формат RGB-спецификатора - RGB:<red>.<green>.<blue>", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                   }
+
+           cG=strtoul(end+1, &end, 10) ;
+      if(*end!='.'){
+                       sprintf(text, "Строка %d - формат RGB-спецификатора - RGB:<red>.<green>.<blue>", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                   }
+
+           cB=strtoul(end+1, &end, 10) ;
+      if(*end!= 0 ){
+                       sprintf(text, "Строка %d - формат RGB-спецификатора - RGB:<red>.<green>.<blue>", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                   }
+/*- - - - - - - - - - - - - - - - - - - - - - Обработка ANGLE-секций */
+     for(i=1 ; i<4 ; i++) {
+ 
+            if(!memicmp(words[i], "A:", 2)) {  range=&azim_range ;  words[i]+=2 ;  }
+       else if(!memicmp(words[i], "E:", 2)) {  range=&elev_range ;  words[i]+=2 ;  }
+       else if(!memicmp(words[i], "R:", 2)) {  range=&roll_range ;  words[i]+=2 ;  }
+       else                                 {
+                       sprintf(text, "Строка %d - ANGLE-спецификатор должен начинаться с символов A:, E: или R:", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                                            }
+
+            if(!memicmp(words[i], "Or:",   3)) {  range->type=    _OR_RANGE ;  words[i]+=3 ;  }
+       else if(!memicmp(words[i], "And:",  4)) {  range->type=   _AND_RANGE ;  words[i]+=4 ;  }
+       else if(!memicmp(words[i], "List:", 5)) {  range->type=_INLIST_RANGE ;  words[i]+=5 ;  }
+       else                                    {
+                       sprintf(text, "Строка %d - ANGLE-спецификатор может иметь тип Or, And или List", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                                               }
+
+               end=strchr(words[i], ':') ;
+            if(end==NULL)     end="ABS" ;
+            else          {  *end= 0 ;  end++ ;  }
+
+            if(!stricmp(end, "ABS" ))  range->base=_ABSOLUTE_VALUE ;
+       else if(!stricmp(end, "NORM"))  range->base=  _NORMAL_VALUE ;
+       else                                    {
+                       sprintf(text, "Строка %d - ANGLE-спецификатор может квалификатор ориентации ABS или NORM", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                                               }
+
+            if(range->type==_INLIST_RANGE) {
+                    strncpy(range->a_lst_text, words[i], sizeof(range->a_lst_text)-1) ;
+                            range->a_lst[0]=strtod(range->a_lst_text, &end) ;
+                            range->a_lst_cnt=1 ;
+                                           }
+            else                           {
+                         end=strchr(words[i], '/') ;
+                      if(end==NULL) {
+                       sprintf(text, "Строка %d - ANGLE-спецификатор - не найден расделитель диапазона - /", row) ;
+                    SEND_ERROR(text) ;
+                         return(-1) ;
+                                    }
+
+                        *end=0 ;
+                         end++ ;
+
+                    strncpy(range->a_min_text, words[i], sizeof(range->a_min_text)-1) ;
+                    strncpy(range->a_max_text,  end    , sizeof(range->a_max_text)-1) ;
+                            range->a_min=strtod(range->a_min_text, &end) ;
+                            range->a_max=strtod(range->a_max_text, &end) ;
+                                           }
+
+                          }
+/*- - - - - - - - - - - - - - - - - - - -  Создание записи в таблице */
+         Indicator->angles[n].use_flag  = 1 ;
+         Indicator->angles[n].color     =RGB(cR, cG, cB) ;
+         Indicator->angles[n].azim_range=azim_range ;
+         Indicator->angles[n].elev_range=elev_range ;
+         Indicator->angles[n].roll_range=roll_range ;
+                           n++ ;
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+            }                                                       /* CONTINUE.1 */
+/*--------------------------------------------------- Закрытие файла */
+
+                fclose(file) ;
+
+/*-------------------------------------------------------------------*/
+
+   return(0) ;
+}
+
+
+/*********************************************************************/
+/*								     */
 /*              Определение следующей анализируемой точки            */
 
   int  RSS_Module_Area::iGetNextPoint(
@@ -2078,6 +2268,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
            int  next_point ;
       Matrix2d  Summary ;
       Matrix2d  Local ;
+      Matrix2d  Normal ;
+      Matrix2d  Base0 ;
         double  r ;
         double  step ;
         double  angle ;
@@ -2085,6 +2277,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
         double  x ;
         double  y ;
         double  z ;
+        double  norm_azim ;
+        double  norm_elev ;
+           int  i_a ;
+           int  i_e ;
 
 #define   _ANGLE_MAX       36
 #define  _ANGLES_SIZE   _ANGLE_MAX*_ANGLE_MAX*_ANGLE_MAX
@@ -2149,6 +2345,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                y=-I->size2/2.+s2_idx*I->cell+I->cell/2. ;           /*   поверхности анализа      */
                z= 0. ;
 
+             Normal.LoadZero(4, 1) ;
+             Normal.SetCell (0, 0, 0 ) ;
+             Normal.SetCell (1, 0, 0 ) ;
+             Normal.SetCell (2, 0, 1.) ;
+             Normal.SetCell (3, 0, 1.) ;
+
+
 #undef   _MAX_1
 #undef   _MAX_2
                            }
@@ -2169,6 +2372,12 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                z= r*cos(angle+step/2.) ;                            /* Рассчет координат точки на */
                x= r*sin(angle+step/2.) ;                            /*   поверхности анализа      */
                y=-I->size2/2.+s2_idx*I->cell+I->cell/2. ;
+
+             Normal.LoadZero(4, 1) ;
+             Normal.SetCell (0, 0, x ) ;
+             Normal.SetCell (1, 0, 0 ) ;
+             Normal.SetCell (2, 0, z ) ;
+             Normal.SetCell (3, 0, 1.) ;
 
 #undef   _MAX_1
 #undef   _MAX_2
@@ -2195,6 +2404,34 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                    point->x=Local.GetCell(0, 0) ;
                    point->y=Local.GetCell(1, 0) ;
                    point->z=Local.GetCell(2, 0) ;
+/*- - - - - - - - - - - - - - - Определение углов ориентации нормали */
+                    Base0.LoadZero(4, 1) ;
+                    Base0.SetCell (3, 0, 1.) ;
+
+                    Base0.LoadMul(&Summary, &Base0) ;
+                   Normal.LoadMul(&Summary, &Normal) ;
+                 x=Normal.GetCell(0, 0)-Base0.GetCell(0, 0) ;
+                 y=Normal.GetCell(1, 0)-Base0.GetCell(1, 0) ; ;
+                 z=Normal.GetCell(2, 0)-Base0.GetCell(2, 0) ; ;
+
+         norm_azim=atan2(x,      z       )*_RAD_TO_GRD ;
+         norm_elev=atan2(y, sqrt(x*x+z*z))*_RAD_TO_GRD ;
+
+/*------------------------------------ Пересчет ориентации к нормали */
+
+#define  A   I->angles[I->angles_idx]
+
+      if(A.priority_type==_A_E_R_PRIO) {  i_a=0 ;  i_e=1 ;  }
+      if(A.priority_type==_A_R_E_PRIO) {  i_a=0 ;  i_e=2 ;  }
+      if(A.priority_type==_E_A_R_PRIO) {  i_a=1 ;  i_e=0 ;  }
+      if(A.priority_type==_E_R_A_PRIO) {  i_a=2 ;  i_e=0 ;  }
+      if(A.priority_type==_R_A_E_PRIO) {  i_a=1 ;  i_e=2 ;  }
+      if(A.priority_type==_R_E_A_PRIO) {  i_a=2 ;  i_e=1 ;  }
+
+      if(A.scan[i_a].range->base==_NORMAL_VALUE)  *A.scan[i_a].angle+=norm_azim ;
+      if(A.scan[i_e].range->base==_NORMAL_VALUE)  *A.scan[i_e].angle-=norm_elev ;
+
+#undef  A
 
 /*-------------------------------------------------------------------*/
 
@@ -2438,7 +2675,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
              *S.angle=S.range->a_min+I->angle_step*S.idx ;
           if(*S.angle>S.range->a_max) *S.angle=S.range->a_max ;
                                         }
-                           
+
 #undef   I
 #undef   S
 }

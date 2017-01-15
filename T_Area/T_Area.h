@@ -38,7 +38,7 @@
 #define                        _NORMAL_VALUE     1
                   } RSS_Module_Area_Range ;
 
-  typedef  struct {                     /* Упраеление сканир.углового диапазона */
+  typedef  struct {                     /* Управление сканир.углового диапазона */
       RSS_Module_Area_Range *range ;                       
                      double *angle ;
                         int  idx ;
@@ -53,7 +53,7 @@
                         int  done_flag ;
                    COLORREF  color ;
 
-      RSS_Module_Area_Range  azim_range ;                       
+      RSS_Module_Area_Range  azim_range ;
       RSS_Module_Area_Range  elev_range ;
       RSS_Module_Area_Range  roll_range ;
 
@@ -163,6 +163,8 @@
               void  iIndicatorKill  (INDICATOR *) ;   /* Удаление индикатора */
                int  iIndicatorAlloc (INDICATOR *) ;   /* Размещение ресурсов индикатора */
               char *iErrorDecode    (int) ;           /* Расшифровка кода ошибки */
+               int  iReadTableFile  (INDICATOR *,
+                                          char * ) ;
                int  iGetNextPoint   (INDICATOR *,
                                       int, RSS_Point *,
                                       int *, COLORREF *, int) ;
