@@ -31,6 +31,9 @@
 #define  SEND_ERROR(text)    SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
                                          (WPARAM)_USER_ERROR_MESSAGE,      \
                                          (LPARAM) text)
+#define  SEND_CHECK(text)      SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
+                                         (WPARAM)_USER_CHECK_MESSAGE,        \
+                                         (LPARAM) text)
 
 #define  CREATE_DIALOG  CreateDialogIndirectParam
 
@@ -825,7 +828,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
      if(!status)  status=object->vCheckFeatures (NULL) ;            /* Проверяем непротиворечивость свойств */
 
      if( status)
-      if(!quiet_flag)  SEND_ERROR(iErrorDecode(status)) ;
+      if(!quiet_flag)  SEND_CHECK(iErrorDecode(status)) ;
 
 /*---------------- Выдаем результат по интерфейсу межмодульной связи */
 

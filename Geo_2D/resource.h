@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Geo_2D.rc
 //
 #define IDC_COMMAND                     1000
@@ -17,7 +17,9 @@
 #define IDC_STATUS_LIST                 1011
 #define IDC_STATUS_INFO                 1011
 #define IDC_THREADS_LIST                1012
+#define IDC_CHECK_MESSAGE               1012
 #define IDC_MODULES_LIST                1013
+#define IDC_CUSTOM1                     1014
 #define IDC_TESTPOS                     1021
 
 // Next default values for new objects
@@ -26,7 +28,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        106
 #define _APS_NEXT_COMMAND_VALUE         40002
-#define _APS_NEXT_CONTROL_VALUE         1014
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

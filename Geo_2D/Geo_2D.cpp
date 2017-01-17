@@ -40,6 +40,9 @@
 #define  SHOW_COMMAND(text)    SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
                                          (WPARAM)_USER_SHOW_COMMAND,         \
                                          (LPARAM) text)
+#define  SEND_CHECK(text)      SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
+                                         (WPARAM)_USER_CHECK_MESSAGE,        \
+                                         (LPARAM) text)
 
 /*-------------------------------------- Обработка элементов диалога */
 
@@ -311,32 +314,33 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     BOOL CALLBACK  G2D_main_dialog(  HWND  hDlg,     UINT  Msg, 
  			           WPARAM  wParam, LPARAM  lParam) 
 {
-              HWND  hPrn ;
-              RECT  wr ;      /* Габарит окна */
-	       int  x_screen ;    /* Габарит экрана */	
-               int  y_screen ;
-               int  x_shift ;     /* Центрующий сдвиг */	
-               int  y_shift ;
-              RECT  Rect_base ;
-              RECT  Rect_real ;
-              RECT  Rect ;
-               int  x0_corr ;
-               int  y0_corr ;
-               int  x1_corr ;
-               int  y1_corr ;
-               int  dx ;
-               int  dy ;
-               int  x_size ;
-               int  y_size ;
-               int  x ;
-               int  y ;
-               int  xs ;
-               int  ys ;
-             HFONT  font ;           /* Шрифт */
-               int  elm ;            /* Идентификатор элемента диалога */
-               int  status ;
-               int  i ; 
-              char  command[1024] ;
+                 HWND  hPrn ;
+                 RECT  wr ;      /* Габарит окна */
+	          int  x_screen ;    /* Габарит экрана */	
+                  int  y_screen ;
+                  int  x_shift ;     /* Центрующий сдвиг */	
+                  int  y_shift ;
+                 RECT  Rect_base ;
+                 RECT  Rect_real ;
+                 RECT  Rect ;
+                  int  x0_corr ;
+                  int  y0_corr ;
+                  int  x1_corr ;
+                  int  y1_corr ;
+                  int  dx ;
+                  int  dy ;
+                  int  x_size ;
+                  int  y_size ;
+                  int  x ;
+                  int  y ;
+                  int  xs ;
+                  int  ys ;
+                HFONT  font ;           /* Шрифт */
+                  int  elm ;            /* Идентификатор элемента диалога */
+                  int  status ;
+                  int  i ; 
+                 char  command[1024] ;
+ struct UD_show_panel  check_msg ;
 
   static  struct {
                    int  elem ;
@@ -346,6 +350,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                    int  ys ;
                  }  loc_pos[]={
                                 {IDC_SHOW,           0, 0, 1, 1},
+                                {IDC_CHECK_MESSAGE,  0, 1, 1, 0},
                                 {IDC_COMMAND,        0, 1, 1, 0},
                                 {IDC_STATUS_INFO,    1, 0, 0, 1},
                                 {IDC_CMD_PREFIX,     0, 1, 0, 0},
@@ -537,7 +542,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                                      G2D_error((char *)lParam, MB_ICONINFORMATION) ;
                 			      return(FALSE) ;
                                        }
-/*- - - - - - - - - - - - - - - - - - - - - - -  Сообщение об ошибке */
+/*- - - - - - - - - - - - - - - - - - - - - - -  Отображение команды */
         if(wParam==_USER_SHOW_COMMAND) {
 
                             SETs(IDC_COMMAND, (char *)lParam) ;
@@ -549,6 +554,21 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                             SETs(IDC_STATUS_INFO, (char *)lParam) ;
                                              return(FALSE) ;
                                     }
+/*- - - - - - - - - - - - - - -  Сообщение о нарушении условий сцены */
+        if(wParam==_USER_CHECK_MESSAGE) {
+
+                   check_msg.text      =(char *)lParam ;
+                   check_msg.fore_color=RGB(255,  0,  0) ;
+                   check_msg.back_color=RGB(232,232,232) ;
+
+           SendMessage(ITEM(IDC_CHECK_MESSAGE), WM_SETTEXT, NULL, 
+                         (LPARAM)UD_ptr_incode((void *)&check_msg)) ;
+           SendMessage(ITEM(IDC_CHECK_MESSAGE), WM_PAINT, NULL, NULL) ;
+
+         if(check_msg.text[0]!=0)  Beep(3000, 160) ;
+
+                			      return(FALSE) ;
+                                        }
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 			  return(FALSE) ;
   			     break ;
@@ -724,6 +744,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                              ResetEvent(hCommandEnd) ;
                       }
 /*------------------------------------- Запуск командного процессора */
+
+               SEND_CHECK("") ;                                     /* Сброс сообщения о контроле условий сцены */
 
                   strncpy(command, cmd, sizeof(command)) ;          /* Перенесение контекста команды */
 
@@ -2498,7 +2520,6 @@ typedef  struct {
             int  status ;
            char *end ;
             int  i ;
-
 
 /*------------------------------------------------- Разборка команды */
 
