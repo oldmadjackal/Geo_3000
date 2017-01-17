@@ -647,6 +647,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     char *arrow ;
    short  status ;
 
+/*-------------------------------- Проверка наличия команды в строке */
+
+        SendMessage(hWnd, WM_GETTEXT, (WPARAM)(sizeof(text)-1), (LPARAM)text) ;
+
 /*-------------------------------------- Обработка клавиш на НАЖАТИЕ */
 
   if(Msg==WM_KEYDOWN   ||
@@ -655,6 +659,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                        memset(key_status, 0, sizeof(key_status)) ;
              GetKeyboardState(key_status) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - <Left-Right-Up-Down> */
+   if(text[0]==0)
     if(wParam==VK_LEFT  ||
        wParam==VK_RIGHT ||
        wParam==VK_UP    ||
@@ -683,6 +688,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                                         return(FALSE) ;
                             }
 /*- - - - - - - - - - - - - - - - - - - - - - -  <PageUp>/<PageDown> */
+   if(text[0]==0)
     if(wParam==VK_PRIOR ||
        wParam==VK_NEXT    ) {
 
