@@ -1229,6 +1229,25 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /********************************************************************/
 /*								    */
+/*		       Освобождение ресурсов                        */
+
+  void   RSS_Object_Body::vFree(void)
+
+{
+  int  i ;
+
+
+   for(i=0 ; i<this->Features_cnt ; i++) {
+               this->Features[i]->vBodyDelete(NULL) ;
+          free(this->Features[i]) ;
+                                         }
+
+          free(this->Features) ;
+}
+
+
+/********************************************************************/
+/*								    */
 /*      Выдать координаты целевой точки, привязанной к объекту      */
 
      int  RSS_Object_Body::vGetTarget(char *part, RSS_Point *target)

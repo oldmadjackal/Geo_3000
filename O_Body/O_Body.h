@@ -30,6 +30,7 @@
                       char  model_path[FILENAME_MAX] ;        /* Файл модели */
 
     public:
+               virtual void  vFree          (void) ;          /* Освободить ресурсы */
                virtual  int  vGetTarget     (char *,          /* Выдать координаты 'целевой' точки */
                                              RSS_Point *) ;
                virtual void  vWriteSave     (std::string *) ; /* Записать данные в строку */

@@ -956,18 +956,21 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
     void RSS_Feature_Cross::vBodyDelete(char *body)
 {
+   int  cnt ;
    int  n_body ;
 
 /*-------------------------------------- Идентификация тела по имени */
 
-    if(body==NULL) {
-                      n_body=0 ;
+    if(body==NULL) {                                                /* Удаление всех тел */
+
+        for(cnt=this->Bodies_cnt ; cnt>0 ; cnt--)
+                         this->vBodyDelete(this->Bodies[0].name) ;
+
+                              return ;
                    }
-    else           {
 
         for(n_body=0 ; n_body<this->Bodies_cnt ; n_body++)
            if(!stricmp(this->Bodies[n_body].name, body))  break ;
-                   }
 
            if(n_body==this->Bodies_cnt)  return ;
 

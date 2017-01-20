@@ -447,7 +447,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                     SendMessage(ITEM(IDC_STATUS_INFO),
                                   WM_SETFONT, (WPARAM)font, 0) ;
 /*- - - - - - - - - - - - - - - - -  Инициализация значеий элементов */
-          SETs(IDC_COMMAND, "@tests\\point_1.geo") ;
+          SETs(IDC_COMMAND, "@tests\\area_1.geo") ;
 /*- - - - - - - - - - - - - - - - - - - - - - - Инициализация фокуса */
                           SetFocus(ITEM(IDC_COMMAND)) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
@@ -688,7 +688,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                                         return(FALSE) ;
                             }
 /*- - - - - - - - - - - - - - - - - - - - - - -  <PageUp>/<PageDown> */
-   if(text[0]==0)
     if(wParam==VK_PRIOR ||
        wParam==VK_NEXT    ) {
 
@@ -1831,6 +1830,20 @@ typedef  struct {
                SEND_ERROR("Не задано имя объекта") ;
                           return(-1) ;
                    }
+/*------------------------------------------- Удаление всех объектов */
+
+    if(!stricmp(name, "ALL")) {
+
+       for(i=0 ; i<OBJECTS_CNT ; i++) {
+                                         OBJECTS[i]->vFree() ;      /* Освобождение ресурсов */
+                                 delete  OBJECTS[i] ;
+                                      }
+
+                                         OBJECTS_CNT=0 ;
+
+                                   this->kernel->vShow("REFRESH") ;
+                                         return(0) ;
+                              }
 /*------------------------------------------- Поиск обьекта по имени */
 
        for(i=0 ; i<OBJECTS_CNT ; i++)

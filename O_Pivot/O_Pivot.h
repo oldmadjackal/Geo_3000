@@ -147,6 +147,7 @@
     public:
                         int  DissectScheme  (void) ;          /* Разводка схемы */
 
+               virtual void  vFree          (void) ;          /* Освободить ресурсы */
                virtual  int  vGetTarget     (char *,          /* Выдать координаты 'целевой' точки */
                                              RSS_Point *) ;
                virtual  int  vGetTargetPoint(RSS_Point *) ;   /* Работа с целевой точкой */
