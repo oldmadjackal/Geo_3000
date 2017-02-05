@@ -18,6 +18,8 @@
 #include <math.h>
 #include <sys\stat.h>
 
+#include "d:\_Projects_2008\_Libraries\matrix.h"
+
 #include "..\RSS_Feature\RSS_Feature.h"
 #include "..\RSS_Object\RSS_Object.h"
 #include "..\RSS_Kernel\RSS_Kernel.h"
@@ -26,6 +28,10 @@
 
 #define  SEND_ERROR(text)    SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
                                          (WPARAM)_USER_ERROR_MESSAGE,      \
+                                         (LPARAM) text)
+
+#define  SEND_CHECK(text)    SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
+                                         (WPARAM)_USER_CHECK_MESSAGE,      \
                                          (LPARAM) text)
 
 #define  CREATE_DIALOG  CreateDialogIndirectParam
@@ -112,6 +118,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
  { "targetinfo", "ti", "#TARGETINFO (TI) - отобразить параметры целевой  точки", 
                         NULL,
                        &RSS_Module_Reach::cTargetInfo },
+ { "rotate",     "r",  "#ROTATE (R) - Беотрывное вращение вокруг текущей целевой точки", 
+                       " ROTATE  <Имя>\n",
+                       &RSS_Module_Reach::cRotate   },
  {  NULL }
                                                               } ;
 
@@ -136,8 +145,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
              mInstrList=RSS_Module_Reach_InstrList ;
 
-               mLineAcc=  0. ;
-              mAngleAcc=  0. ;
+               mLineAcc=  0.01 ;
+              mAngleAcc=  1.0 ;
             mResetStart=  0 ;
            mCheckRanges=  1 ;
                   mDraw=  1 ;
@@ -372,9 +381,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
            double   da_stop ;           /* Точность приближения угловых координат */
            double   len_factor ;        /* Фактор линейных размеров */
            double   len ;
+           double   coef ;
               int   status ;
               int   fail_cnt ;
               int   fail_all ;
+              int   n ;
               int   i ;
               int   j ;
 
@@ -614,7 +625,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
           if(this->mAngleAcc!=0)  da_stop=this->mAngleAcc ;
           else                    da_stop=a_step/50. ;
 
-#define  _DIR_ATTEMPTS   10
+#define  _DIR_ATTEMPTS   50
 
 /*------------------------------------------ Выход в стартовую точку */
 
@@ -648,6 +659,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
        do {                                                         /* CIRCLE.2 - Движение по вектору */
               memmove(degrees_prv, degrees, sizeof(degrees)) ;      /* Сохраняем текущий вектор степеней подвижности */
+
+           if(this->kernel->stop)  break ;                          /* Если внешнее прерывание поиска */
 /*- - - - - - - - - - - - - - - - - - - - - - - -  Анализ завершения */
                object->vGetTargetPoint(&Top) ;                      /* Получаем текущее положение целевой точки */
 
@@ -697,42 +710,448 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                      fail_all=  0 ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
           } while(1) ;                                              /* CONTINUE.2 */
+
+         if(this->kernel->stop)  break ;                            /* Если внешнее прерывание поиска */
 /*- - - - - - - - - - - - - - - Контроль завершения по числу попыток */
-         if(fail_all>mFailMax ) {
+         if(fail_all>mFailMax) {
               status=MessageBox(NULL, "Достигнуто критическое число "
                                       "неудачных попыток.\nПродолжать?",
                                       "Выход в точку", 
                                        MB_ICONQUESTION | MB_YESNO) ;
            if(status==IDNO)  break ;
-                                }
+                               }
 /*- - - - - - - - - - - - - - - - - - - Отскок по случайному вектору */
          if(fail_cnt>_DIR_ATTEMPTS) {
-                                                fail_cnt=0 ;
 
                 iGenerateVector(vector, move_cnt) ;                 /* Генерируем вектор отскока */
+
+                    coef=1.0 ;
+
+           for(n=0 ; n<mJampRangeCoef ; n++) {                      /* CIRCLE - Движение по вектору отскока */
+
+                memmove(degrees_prv, degrees, sizeof(degrees)) ;    /* Сохраняем текущий вектор степеней подвижности */
+
+               if(this->kernel->stop)  break ;                      /* Если внешнее прерывание поиска */
 
               for(j=0, i=0 ; i<cnt ; i++)                           /* Делаем шаг по вектору */
                 if(degrees[i].fixed==0) {
                  if(degrees[i].type==_L_TYPE) 
-                         degrees[i].value+=vector[j]*v_size*l_step*mJampRangeCoef  ;
-                 else    degrees[i].value+=vector[j]*v_size*a_step*mJampRangeCoef ;
+                         degrees[i].value+=vector[j]*v_size*l_step*coef  ;
+                 else    degrees[i].value+=vector[j]*v_size*a_step*coef ;
                                                   j++ ;
                                         }
 
-                     object->vSetJoints     (degrees, cnt) ;        /* Задаем вектор степеней подвижности */
-              status=object->vSolveByJoints () ;                    /* Решаем прямую задачу в исходной точке */
+                     object->vSetJoints    (degrees, cnt) ;         /* Задаем вектор степеней подвижности */
+              status=object->vSolveByJoints() ;                     /* Решаем прямую задачу в исходной точке */
+           if(status && mCheckRanges) {                             /* Если нарущение ограничений в степенях  - */
+                memmove(degrees, degrees_prv, sizeof(degrees)) ;    /*  восстанавливаем предыдущую точку        */
+                                                                    /*   и либо сокращаем шаг, либо выходим     */
+              if(n==0)  coef*=0.5 ;
+              else       break ;     
+                                      }
+                                             }                      /* CONTINUE - Движение по вектору отскока */
+
                      object->vGetTargetPoint(&Top) ;                /* Получаем положение целевой точки */  
 
              range_prv=iCalcRange(&mTarget, &Top, l_step, a_step) ; /* Рассчитываем 'целевую дистанцию' */
                                     }
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+               if(this->kernel->stop)  break ;                      /* Если внешнее прерывание поиска */
+
         } while(stop_flag==0) ;                                     /* CONTINUE.1 */
 
+         if(this->kernel->stop)                                     /* Если внешнее прерывание поиска -                    */
+                   object->vSetJoints(degrees_prv, cnt) ;           /*  - восстанавливаем последнюю "хорошую" конфигурацию */
+/*---------------------------- Проверяем непротиворечивость свойств  */
+
+   if(fail_all<=mFailMax) {
+
+        status=object->vCheckFeatures(NULL) ;
+     if(status)  SEND_CHECK(iErrorDecode(status)) ;
+                          }
 /*------------------------------------------------ Отображение сцены */
 
                        this->kernel->vShow(NULL) ;
 
+/*------------------------- Приведение углов в канонический диапазон */
+
+           cnt=object->vGetJoints(degrees) ;
+
+    for(i=0 ; i<cnt ; i++)
+      if(degrees[i].fixed==0)
+       if(degrees[i].type==_A_TYPE) {
+         while(degrees[i].value<-180.)  degrees[i].value+=360. ;
+         while(degrees[i].value> 180.)  degrees[i].value-=360. ;                                              
+                                    }
+
+               object->vSetJoints(degrees, cnt) ;
+
 /*-------------------------------------------------------------------*/
+
+#undef   OBJECTS
+#undef   OBJECTS_CNT
+
+   return(0) ;
+}
+
+
+/********************************************************************/
+/*								    */
+/*		      Реализация инструкции ROTATE                  */
+/*      ROTATE    <Имя>                                             */
+
+  int  RSS_Module_Reach::cRotate(char *cmd)
+
+{ 
+
+#define  _COORD_MAX   6
+#define   _PARS_MAX   7
+
+             char  *pars[_PARS_MAX] ;
+             char  *name ;
+       RSS_Object  *object ;
+             char  *end ;
+        RSS_IFace  iface ;
+        RSS_Point   Freeze ;            /* Начальное положение целевой точки объекта */
+        RSS_Point   Top ;               /* Текущее положение целевой точки объекта */
+        RSS_Point   Probe ;             /* Пробное положение целевой точки объекта */
+        RSS_Point   Cr ;
+              int   corr[10] ;
+        RSS_Joint   degrees[50] ;       /* Вектор степеней подвижности объекта */
+        RSS_Joint   degrees_dlt[50] ;
+        RSS_Joint   degrees_prv[50] ;
+        RSS_Point   delta[50] ;
+              int   delta_vector[50] ;
+              int   base_vector[50] ;
+              int   assign_cnt ;
+              int   cnt ;               /* Число степеней подвижности */
+           double   vector[50] ;        /* Вектор приращения степеней подвижности */
+           double   l_step ;            /* Шаг движения по линейным координат */
+           double   a_step ;            /* Шаг движения по угловым координат */
+           double   step_size ;
+           double   coef ;
+         Matrix2d   mtx ;
+           double   det, det1, det2, det3 ;
+              int   status ;
+              int   new_vector ;
+              int   i ;
+              int   j ;
+              int   k ;
+
+#define   OBJECTS       this->kernel->kernel_objects 
+#define   OBJECTS_CNT   this->kernel->kernel_objects_cnt 
+
+/*---------------------------------------- Разборка командной строки */
+/*- - - - - - - - - - - - - - - - - - -  Выделение ключей управления */
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */        
+    for(i=0 ; i<_PARS_MAX ; i++)  pars[i]=NULL ;
+
+    for(end=cmd, i=0 ; i<_PARS_MAX ; end++, i++) {
+      
+                pars[i]=end ;
+                   end =strchr(pars[i], ' ') ;
+                if(end==NULL)  break ;
+                  *end=0 ;
+                                                 }
+
+                     name= pars[0] ;
+
+/*------------------------------------------- Контроль имени объекта */
+
+    if(name==NULL) {                                                /* Если имя не задано... */
+                      SEND_ERROR("Не задано имя объекта. \n"
+                                 "Например: ROTATE <Имя_объекта> ...") ;
+                                     return(-1) ;
+                   }
+
+       for(i=0 ; i<OBJECTS_CNT ; i++)
+         if(!stricmp(OBJECTS[i]->Name, name)) {  object=OBJECTS[i] ;
+                                                            break ;  }
+
+         if(i==OBJECTS_CNT) {                                       /* Если объект не найден... */
+             SEND_ERROR("Анализируемого объекта с таким именем НЕ существует") ;
+                                return(-1) ;
+                            }
+/*------------------------------------------ Проверка исходной точки */
+
+          status=object->vSolveByJoints() ;                         /* Решаем прямую задачу в исходной точке */
+       if(status) {
+              MessageBox(NULL, "В начальной точке поиска имеется "
+                               "нарушение диапазонов степеней",
+                               "Проворот в точке", 0) ;
+                                    return(0) ;
+                  }
+
+          status=object->vCheckFeatures(NULL) ;                     /* Проверяем непротиворечивость свойств */
+       if(status) {
+              MessageBox(NULL, "В начальной точке поиска имеется "
+                               "пересечение тел сцены",
+                               "Проворот в точке", 0) ;
+                                    return(0) ;
+                  }
+/*------------------------------------------ Подготовка сканирования */
+
+          if(this->mLineAcc !=0)  l_step=this->mLineAcc ;
+          else                    l_step= 0.01 ;
+
+          if(this->mAngleAcc!=0)  a_step=this->mAngleAcc ;
+          else                    a_step= 1.00 ;
+
+                 object->vGetTargetPoint(&Freeze) ;                 /* Получаем исходное положение целевой точки */
+
+/*======================================== Сканирование конфигураций */
+
+                     mtx.Create(3,3) ;
+
+                      new_vector=1 ;
+
+  do {
+         if(this->kernel->stop) break ;
+
+           cnt=object->vGetJoints(degrees_prv) ;                    /* Извлекаем текущую конфигурацию */
+
+/*----------------------------------- Формирование вектора изменения */
+
+   if(new_vector) {
+/*- - - - - - - - - - - - - - - - - - Определение долевых приращений */
+
+              memset(delta_vector, 0, sizeof(delta_vector)) ;
+              memset(delta,        0, sizeof(delta       )) ;
+
+     for(i=0 ; i<cnt ; i++)
+       if(degrees_prv[i].fixed==0) {
+
+        for(k=1 ; k<3 ; k++) {
+
+               memcpy(degrees, degrees_prv, sizeof(degrees)) ;
+
+           if(k==1)  coef=-1. ;
+           else      coef= 1. ;
+
+           if(degrees[i].type==_A_TYPE) coef*=a_step/2. ;
+           else                         coef*=l_step/2. ;
+
+                                        degrees[i].value+=coef ;
+
+                 object->vSetJoints(degrees, cnt) ;
+          status=object->vSolveByJoints() ;                         /* Решаем прямую задачу в пробной точке */
+       if(status)  continue ;
+
+                   delta_vector[i]+=k ;
+
+                 object->vGetTargetPoint(&Top) ;                    /* Получаем перемещение пробной точки */
+
+            delta[i].x=(Top.x-Freeze.x)/coef ;
+            delta[i].y=(Top.y-Freeze.y)/coef ;
+            delta[i].z=(Top.z-Freeze.z)/coef ;
+                             }
+                                 }
+/*- - - - - - - - - - - - - Определение однозначно-задающих степеней */
+              memset(base_vector, 0, sizeof(base_vector)) ;
+
+     for(i=0 ; i<cnt ; i++)
+       if(degrees_prv[i].fixed==0) {
+
+         if(delta_vector[i]==1) {  base_vector[i]=-1 ;  continue ;  }
+         if(delta_vector[i]==2) {  base_vector[i]= 1 ;  continue ;  }
+
+         if(delta[i].x!=0.) {
+              for(coef=0., j=0 ; j<cnt ; j++)  if(j!=i)  coef+=fabs(delta[i].x) ;
+                if(coef==0.) {  base_vector[i]= 2 ;  continue ;  }
+                            }
+
+         if(delta[i].y!=0.) {
+               for(coef=0., j=0 ; j<cnt ; j++)  if(j!=i)  coef+=fabs(delta[i].y) ;
+                 if(coef==0.) {  base_vector[i]= 2 ;  continue ;  }
+                            }
+
+         if(delta[i].z!=0.) {
+               for(coef=0., j=0 ; j<cnt ; j++)  if(j!=i)  coef+=fabs(delta[i].z) ;
+                 if(coef==0.) {  base_vector[i]= 2 ;  continue ;  }
+                            }
+                                   }
+       else                        {
+                                      base_vector[i]=3 ;
+                                   }
+/*- - - - - - - - - - - - -  Определение остальных задающих степеней */
+                                assign_cnt=0 ;
+
+        for(i=0 ; i<cnt ; i++)  if(base_vector[i]!=0)  assign_cnt++ ;
+
+           assign_cnt=cnt-3-assign_cnt ;
+
+     while(assign_cnt>0) {
+
+                        j=((long)cnt*rand())/RAND_MAX ;
+         if(            j       >=cnt || 
+            base_vector[j]      != 0    )  continue ; 
+
+            base_vector[j]=rand()>RAND_MAX/2?-1:1 ;
+                             assign_cnt-- ;
+                         }
+/*- - - - - - - - - - - - - - - - - -  Определение задающего вектора */
+          memset(vector, 0, sizeof(vector)) ;
+
+        for(coef=0., i=0 ; i<cnt ; i++)
+          if(base_vector[i]== 1 ||
+             base_vector[i]==-1   ) {  vector[i]=rand() ;  coef+=vector[i]*vector[i] ;  }
+
+               coef=sqrt(coef) ;
+
+        for(i=0 ; i<cnt ; i++)
+          if(base_vector[i]== 1 ||
+             base_vector[i]==-1   )  vector[i]=(vector[i]/coef)*base_vector[i] ;
+/*- - - - - - - - - - - - - - -  Определение корректирующих степеней */
+        for(i=0, j=0 ; i<cnt ; i++)
+          if(base_vector[i]==0) {
+                                    corr[j]=i ;
+                                         j++ ;
+                                }
+
+          if(j!=3) {
+                        object->vSetJoints(degrees_prv, cnt) ;
+                            new_vector=1 ;
+                               continue ;
+                   }
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+                  }
+/*------------------------------------ Движение по вектору изменения */
+
+                      step_size=1. ;
+
+   do {
+          if(this->kernel->stop) break ;
+
+                     new_vector=0 ;
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - Шаг по вектору */
+               memcpy(degrees, degrees_prv, sizeof(degrees)) ;
+
+        for(i=0 ; i<cnt ; i++) {
+           if(degrees[i].type==_A_TYPE) degrees[i].value+=vector[i]*a_step*step_size ;
+           else                         degrees[i].value+=vector[i]*l_step*step_size ;
+                               }
+
+                   object->vSetJoints(degrees, cnt) ;
+            status=object->vSolveByJoints() ;                       /* Решаем прямую задачу в пробной точке */
+         if(status) {
+                       object->vSetJoints(degrees_prv, cnt) ;
+                        new_vector=1 ;
+                           break ;
+                    }
+
+                 object->vGetTargetPoint(&Top) ;                    /* Получаем первичную точку */
+
+                   Cr.x=Freeze.x-Top.x ;
+                   Cr.y=Freeze.y-Top.y ;
+                   Cr.z=Freeze.z-Top.z ;
+/*- - - - - - - - - - - - - - - - - - Определение долевых приращений */
+     for(j=0 ; j<3 ; j++) {
+                               i=corr[j] ;
+
+        for(k=1 ; k<3 ; k++) {
+
+               memcpy(degrees_dlt, degrees, sizeof(degrees)) ;
+
+           if(k==1)  coef=-1. ;
+           else      coef= 1. ;
+
+           if(degrees_dlt[i].type==_A_TYPE) coef*=a_step/2. ;
+           else                             coef*=l_step/2. ;
+
+                                      degrees_dlt[i].value+=coef ;
+
+                 object->vSetJoints(degrees_dlt, cnt) ;
+          status=object->vSolveByJoints() ;                         /* Решаем прямую задачу в пробной точке */
+       if(status)  continue ;
+
+                 object->vGetTargetPoint(&Probe) ;                  /* Получаем перемещение пробной точки */
+
+            delta[i].x=(Probe.x-Top.x)/coef ;
+            delta[i].y=(Probe.y-Top.y)/coef ;
+            delta[i].z=(Probe.z-Top.z)/coef ;
+                             }
+                          }
+/*- - - - - - - - - - - - - - - -  Отработка корректирующих степеней */
+#define  X(n)  delta[corr[n]].x
+#define  Y(n)  delta[corr[n]].y
+#define  Z(n)  delta[corr[n]].z
+
+                 mtx.SetCell(0,0,X(0)) ;  mtx.SetCell(0,1,X(1)) ;  mtx.SetCell(0,2,X(2)) ;
+                 mtx.SetCell(1,0,Y(0)) ;  mtx.SetCell(1,1,Y(1)) ;  mtx.SetCell(1,2,Y(2)) ;
+                 mtx.SetCell(2,0,Z(0)) ;  mtx.SetCell(2,1,Z(1)) ;  mtx.SetCell(2,2,Z(2)) ;
+             det=mtx.Determinant() ;
+          if(det==0.) {
+                        object->vSetJoints(degrees_prv, cnt) ;
+                            new_vector=1 ;
+                               break ;
+                      }
+
+                  mtx.SetCell(0,0,Cr.x) ;  mtx.SetCell(0,1,X(1)) ;  mtx.SetCell(0,2,X(2)) ;
+                  mtx.SetCell(1,0,Cr.y) ;  mtx.SetCell(1,1,Y(1)) ;  mtx.SetCell(1,2,Y(2)) ;
+                  mtx.SetCell(2,0,Cr.z) ;  mtx.SetCell(2,1,Z(1)) ;  mtx.SetCell(2,2,Z(2)) ;
+             det1=mtx.Determinant() ;
+
+                  mtx.SetCell(0,0,X(0)) ;  mtx.SetCell(0,1,Cr.x) ;  mtx.SetCell(0,2,X(2)) ;
+                  mtx.SetCell(1,0,Y(0)) ;  mtx.SetCell(1,1,Cr.y) ;  mtx.SetCell(1,2,Y(2)) ;
+                  mtx.SetCell(2,0,Z(0)) ;  mtx.SetCell(2,1,Cr.z) ;  mtx.SetCell(2,2,Z(2)) ;
+             det2=mtx.Determinant() ;
+
+                  mtx.SetCell(0,0,X(0)) ;  mtx.SetCell(0,1,X(1)) ;  mtx.SetCell(0,2,Cr.x) ;
+                  mtx.SetCell(1,0,Y(0)) ;  mtx.SetCell(1,1,Y(1)) ;  mtx.SetCell(1,2,Cr.y) ;
+                  mtx.SetCell(2,0,Z(0)) ;  mtx.SetCell(2,1,Z(1)) ;  mtx.SetCell(2,2,Cr.z) ;
+             det3=mtx.Determinant() ;
+ 
+                   degrees[corr[0]].value+=det1/det ;
+                   degrees[corr[1]].value+=det2/det ;
+                   degrees[corr[2]].value+=det3/det ;
+
+#undef   X
+#undef   Y
+#undef   Z
+
+                             object->vSetJoints(degrees, cnt) ;
+                      status=object->vSolveByJoints() ;             /* Решаем прямую задачу в пробной точке */
+         if(!status)  status=object->vCheckFeatures (NULL) ;        /* Проверяем непротиворечивость свойств */
+         if( status) {
+                       object->vSetJoints(degrees_prv, cnt) ;
+                        new_vector=1 ;
+                           break ;
+                     }
+/*- - - - - - - - - - - - - - - - - - -  Проверка величины изменения */
+       for(i=0 ; i<cnt ; i++) {
+           if(degrees[i].type==_A_TYPE) coef=a_step ;
+           else                         coef=l_step ;
+
+        if(fabs(degrees[i].value-degrees_prv[i].value)>coef)  break ;
+                              }
+ 
+        if(cnt==i)  break ;
+
+        if(step_size<0.01) {
+                              object->vSetJoints(degrees_prv, cnt) ;
+                                new_vector=1 ;
+                                  break ;
+                           }
+
+            step_size/=2. ;
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+      } while(1) ;
+
+         if(this->kernel->stop)  break ;
+
+         if(new_vector)  continue ;
+
+/*-------------------------------------------------------------------*/
+
+                           this->kernel->vShow(NULL) ;
+     } while(1) ;
+
+         if(this->kernel->stop)                                     /* Если внешнее прерывание поиска -                    */
+                    object->vSetJoints(degrees_prv, cnt) ;          /*  - восстанавливаем последнюю "хорошую" конфигурацию */
+
+                     mtx.Free() ;
+
+/*===================================================================*/
 
 #undef   OBJECTS
 #undef   OBJECTS_CNT
@@ -786,6 +1205,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
    if(error==_RSS_OBJECT_DEGREES_LIMIT     )  return("Нарушение диапазона значений в степени подвижности") ;
    if(error==_RSS_OBJECT_LOW_ACTIVE        )  return("Число степеней подвижности меньше 6") ;
    if(error==_RSS_OBJECT_MATCH_ACTIVE      )  return("Число степеней подвижности больше 6") ;
+   if(error==_RSS_OBJECT_COLLISION_EXTERNAL)  return("Столкновение тел разных объектов сцены") ;
+   if(error==_RSS_OBJECT_COLLISION_INTERNAL)  return("Столкновение тел одного из объектов сцены") ;
    if(error==_RSS_OBJECT_BAD_SCHEME        )  return("Некорректная схема") ;
    if(error==_RSS_OBJECT_UNKNOWN_ERROR     )  return("Неизвестная ошибка") ;
                                               return("Код ошибки неопределен") ;

@@ -128,6 +128,7 @@ typedef  int (CALLBACK *RSS_Kernel_CallBack)(int, void *)  ;
     static         HWND   kernel_wnd ;	            /* Окно ядра */
     static         HWND   active_wnd ;	            /* Активное oкно */
     static    HINSTANCE   kernel_inst ;	            /* Идентификатор модуля ядра */
+    static          int   stop ;                    /* Флаг остановки исполнения */
 
     static   RSS_Kernel  *priority_entry ;	    /* Модуль для приоритетного вызова */
     static   RSS_Kernel **events_entry ;            /* Список модулей, имеющих процедуры обработки событий */

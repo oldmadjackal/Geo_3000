@@ -340,6 +340,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                   int  status ;
                   int  i ; 
                  char  command[1024] ;
+                 char *end ;
  struct UD_show_panel  check_msg ;
 
   static  struct {
@@ -447,7 +448,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                     SendMessage(ITEM(IDC_STATUS_INFO),
                                   WM_SETFONT, (WPARAM)font, 0) ;
 /*- - - - - - - - - - - - - - - - -  Инициализация значеий элементов */
-          SETs(IDC_COMMAND, "@tests\\area_1.geo") ;
+          SETs(IDC_COMMAND, "@tests\\reach_1.geo") ;
 /*- - - - - - - - - - - - - - - - - - - - - - - Инициализация фокуса */
                           SetFocus(ITEM(IDC_COMMAND)) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
@@ -507,6 +508,11 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
                              GETs(IDC_COMMAND, command) ;
                              SETs(IDC_COMMAND,   ""   ) ;
+
+               end=strchr(command, '\r') ;
+            if(end!=NULL)  strcpy(end, end+1) ;
+               end=strchr(command, '\n') ;
+            if(end!=NULL)  strcpy(end, end+1) ;
 
                 G2D_command_start(command) ;
 
@@ -842,6 +848,8 @@ typedef  struct {
 /*------------------------------------------------------- Подготовка */
 
                         hDlg=hDialog ;
+
+                      RSS_Kernel::kernel->stop=0 ;
 
 /*---------------------------------------------------- Инициализация */
 
@@ -1504,6 +1512,9 @@ typedef  struct {
  { "threads",   "th",    "# THREADS - монитор рабочих потоков", 
                           NULL,
                          &RSS_Module_Main::cThreads   },
+ { "stop",      "stop",  "# STOP - остановить рабочий поток",
+                          NULL,
+                         &RSS_Module_Main::cStop   },
  { "modules",   "mod",   "# MODULES - список подключенных модулей", 
                           NULL,
                          &RSS_Module_Main::cModules   },
@@ -2853,6 +2864,19 @@ typedef  struct {
 
 { 
       G2D_threads("SHOW", NULL) ;
+
+   return(0) ;
+}
+
+
+/********************************************************************/
+/*								    */
+/*		      Реализация инструкции STOP                    */
+
+  int  RSS_Module_Main::cStop(char *cmd)
+
+{ 
+      G2D_threads("STOP", NULL) ;
 
    return(0) ;
 }

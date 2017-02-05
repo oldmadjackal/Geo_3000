@@ -50,6 +50,7 @@
                      int  cRead         (char *) ;              /* Инструкция READ */
                      int  cWrite        (char *) ;              /* Инструкция WRITE */
                      int  cThreads      (char *) ;              /* Инструкция THREADS */
+                     int  cStop         (char *) ;              /* Инструкция STOP */
                      int  cModules      (char *) ;              /* Инструкция MODULES */
                      int  cMemory       (char *) ;              /* Инструкция MEMORY */
                      int  cSrand        (char *) ;              /* Инструкция SRAND */

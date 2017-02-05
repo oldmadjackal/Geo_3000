@@ -44,6 +44,7 @@
                      int  cConfig        (char *) ;           /* Инструкция CONFIG */ 
                      int  cTarget        (char *) ;           /* Инструкция TARGET */ 
                      int  cTargetInfo    (char *) ;           /* Инструкция TARGET_INFO */ 
+                     int  cRotate        (char *) ;           /* Инструкция ROTATE */ 
 
                     char *iErrorDecode   (int) ;              /* Расшифровка кода ошибки */
                     void  iGenerateVector(double *, int) ;    /* Генерация случайного вектора */
