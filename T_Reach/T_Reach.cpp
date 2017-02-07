@@ -118,7 +118,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
  { "targetinfo", "ti", "#TARGETINFO (TI) - отобразить параметры целевой  точки", 
                         NULL,
                        &RSS_Module_Reach::cTargetInfo },
- { "rotate",     "r",  "#ROTATE (R) - Ѕеотрывное вращение вокруг текущей целевой точки", 
+ { "rotate",     "r",  "#ROTATE (R) - Ѕезотрывное вращение вокруг текущей целевой точки", 
                        " ROTATE  <»м€>\n",
                        &RSS_Module_Reach::cRotate   },
  {  NULL }
