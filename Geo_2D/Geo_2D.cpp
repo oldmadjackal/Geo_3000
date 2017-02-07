@@ -814,6 +814,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   static    char  arrow_SHT_cmd[1024] ;
   static    char  arrow_step[32] ;       /* Шаги стрелочных команд */
   static    char  arrow_SHT_step[32] ;
+  static     int  arrow_wait ;
+             int  arrow_command ;
             char  object[32] ;
              int  postfix_flag ;         /* Флаг обработки потфиксной команды */
             HWND  hDlg ;
@@ -850,6 +852,8 @@ typedef  struct {
                         hDlg=hDialog ;
 
                       RSS_Kernel::kernel->stop=0 ;
+
+                           arrow_command=0 ;
 
 /*---------------------------------------------------- Инициализация */
 
@@ -945,12 +949,28 @@ typedef  struct {
                              file_rd_flag=1 ;
                                  continue ;
                        }
+/*- - - - - - - - - - - - - - - - - - Исполнение постфиксной команды */
+   if(command[0]=='.' &&
+      command[1]== 0    ) {
+                                  strcpy(command, postfix) ;
+                          }
 /*- - - - - - - - - - - - - - - - - - -  Задание постфиксной команды */
    if(command[0]=='.' &&
       command[1]!='.'   ) {
 
                  memset(postfix, 0, sizeof(postfix)) ;
                 strncpy(postfix, command+1, sizeof(postfix)-1) ;
+
+                   SETs(IDC_CMD_POSTFIX, postfix) ;
+             G2D_system() ;
+
+                                continue ;
+                          }
+/*- - - - - - - - - - - - - - - - - - - Удаление постфиксной команды */
+   if(command[0]=='.' &&
+      command[1]=='.'   ) {
+
+                 memset(postfix, 0, sizeof(postfix)) ;
 
                    SETs(IDC_CMD_POSTFIX, postfix) ;
              G2D_system() ;
@@ -1052,6 +1072,13 @@ typedef  struct {
 
    if(strstr(command, "$arrow$")!=NULL) {
 
+     if(arrow_wait) {
+                       return(0) ;
+                    }
+
+               arrow_command=1 ;
+               arrow_wait   =1 ;
+
      if(strstr(command, "$shift$")!=NULL) {  strcpy(text, arrow_SHT_cmd) ;
                                                     word2=arrow_SHT_step ;  }
      else                                 {  strcpy(text, arrow_cmd) ;
@@ -1070,12 +1097,11 @@ typedef  struct {
                    end[size]=' ' ;
 
                      command=text ;
+
+     if(postfix[0]) {   strcat(command,  "%"   ) ;
+                        strcat(command, postfix) ;   }
+
                                         }
-/*------------------------------------ Обработка специальных режимов */
-
-   if(postfix[0]) {   strcat(command,  "%"   ) ;
-                      strcat(command, postfix) ;   }
-
 /*-------------------------------------------- Цикл вложенных команд */
 
                     postfix_flag=0 ;
@@ -1180,6 +1206,7 @@ typedef  struct {
        if(command[0]!=0) {
                              sprintf(text, "Неизвестная команда: %s", command) ;
                            G2D_error(text, MB_ICONERROR) ;
+                  if(arrow_command)  arrow_wait=0 ;
                                 return(-1) ;
                          }
                    } 
@@ -1193,6 +1220,8 @@ typedef  struct {
      } while(file_rd_flag) ;                                        /* CONTINUE.0 */
 
 /*-------------------------------------------------------------------*/
+
+     if(arrow_command)  arrow_wait=0 ;
 
 #undef   OBJECTS
 #undef   OBJECTS_CNT

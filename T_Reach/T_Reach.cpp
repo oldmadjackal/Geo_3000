@@ -711,7 +711,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
           } while(1) ;                                              /* CONTINUE.2 */
 
-         if(this->kernel->stop)  break ;                            /* ≈сли внешнее прерывание поиска */
+         if(stop_flag || this->kernel->stop)  break ;               /* ≈сли цель достигнута или внешнее прерывание поиска */
 /*- - - - - - - - - - - - - - -  онтроль завершени€ по числу попыток */
          if(fail_all>mFailMax) {
               status=MessageBox(NULL, "ƒостигнуто критическое число "
@@ -760,8 +760,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
         } while(stop_flag==0) ;                                     /* CONTINUE.1 */
 
-         if(this->kernel->stop)                                     /* ≈сли внешнее прерывание поиска -                    */
-                   object->vSetJoints(degrees_prv, cnt) ;           /*  - восстанавливаем последнюю "хорошую" конфигурацию */
+         if(stop_flag || this->kernel->stop)                        /* ≈сли цель достигнута или внешнее прерывание поиска - */
+                   object->vSetJoints(degrees_prv, cnt) ;           /*  - восстанавливаем последнюю "хорошую" конфигурацию  */
+
 /*---------------------------- ѕровер€ем непротиворечивость свойств  */
 
    if(fail_all<=mFailMax) {
