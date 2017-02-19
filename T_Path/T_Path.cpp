@@ -111,22 +111,24 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        "     Q - не показать движение по найденной траектории\n",
                        &RSS_Module_Path::cSearch },
  { "trace",      "t",  "#TRACE (T) - контрольная проводка траектории", 
-                       " TRACE[/D] <Имя траектории> [<Имя обьекта>]\n"
-                       "     D - отрисовывать объект в процессе проводки\n",
+                       " TRACE[/DR] <Имя траектории> [<Имя обьекта>]\n"
+                       "     D - отрисовывать объект в процессе проводки\n"
+                       "     R - провести траекторию в обратную сторону\n",
                        &RSS_Module_Path::cTrace },
  { "indicate",   "i",  "#INDICATE (I) - отрисовка траектории", 
                        " INDICATE <Имя траектории> [<Имя обьекта>]\n",
                        &RSS_Module_Path::cIndicate },
  { "copy",       "cp", "#COPY - создать копию траектории",
-                       " COPY[/O] <Имя_образца> <Имя_копии>\n"
-                       "     O - если объект существует - перезаписать его\n",
+                       " COPY[/OR] <Имя_образца> <Имя_копии>\n"
+                       "     O - если объект существует - перезаписать его\n"
+                       "     R - создать копию обратной траектории\n",
                        &RSS_Module_Path::cCopy },
  { "color",      "co", "#COLOR   - установить цвет объекта", 
-                        NULL,
+                       " COLOR <Имя траектории> <Цвет>\n"
+                       "     <Цвет> - RED, GREEN, BLUE\n",
                        &RSS_Module_Path::cColor      },
  {  NULL }
                                                               } ;
-
 
 /********************************************************************/
 /*								    */
@@ -1074,6 +1076,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        char  *pars[_PARS_MAX] ;
                        char  *object_name ;
                        char  *traj_name ;
+                        int   Reverse_flag ;
                  RSS_Object  *master ;
                  RSS_Object  *object ;
             RSS_Object_Path  *path_object ;
@@ -1096,6 +1099,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                      mDraw=0 ;
 
+              Reverse_flag=0 ;
+
 /*---------------------------------------- Разборка командной строки */
 /*- - - - - - - - - - - - - - - - - - -  Выделение ключей управления */
      if(*cmd=='/') {
@@ -1111,6 +1116,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                 if(strchr(cmd, 'd')!=NULL ||
                    strchr(cmd, 'D')!=NULL   )  mDraw=1 ;
+
+                if(strchr(cmd, 'r')!=NULL ||
+                   strchr(cmd, 'R')!=NULL   )  Reverse_flag=1 ;
 
                            cmd=end+1 ;
                    }
@@ -1209,6 +1217,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #define  T   path_object->Trajectory
 
+       if(Reverse_flag)  iReverse(T) ;                              /* Если реверс траектории */
+
               mPath_vectors=T->Path_vectors ;
               mPath_frame  =T->Path_frame ;
               mPath_object = object ;
@@ -1232,8 +1242,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                               iface->vSignal("DONE", "") ;          /* Выдаем результат по интерфейсу межмодульной связи */
                           }
 
-#undef  T
+       if(Reverse_flag)  iReverse(T) ;                              /* Восстановление отреверсированной траектории */
 
+#undef  T
 
 /*-------------------------------------------------------------------*/
 
@@ -1430,6 +1441,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        char *pars[_PARS_MAX] ;
             RSS_Object_Path *Src ;
             RSS_Object_Path *Dst ;
+                        int   Reverse_flag ;
                  TRAJECTORY *traj ; 
                        char *name ;
                        char *copy ;
@@ -1445,6 +1457,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*-------------------------------------- Дешифровка командной строки */
 
                    overwrite=0 ;
+
+                Reverse_flag=0 ;
 /*- - - - - - - - - - - - - - - - - - -  Выделение ключей управления */
      if(*cmd=='/') {
  
@@ -1459,6 +1473,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                 if(strchr(cmd, 'o')!=NULL ||
                    strchr(cmd, 'O')!=NULL   )  overwrite=1 ;
+
+                if(strchr(cmd, 'r')!=NULL ||
+                   strchr(cmd, 'R')!=NULL   )  Reverse_flag=1 ;
 
                            cmd=end+1 ;
                    }
@@ -1563,6 +1580,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
        memcpy(traj->Vectors,      S->Vectors,      S->Path_frame* S->Path_vectors   *sizeof(double)) ;
 
 #undef  S
+
+/*------------------------------------------------ Реверс траектории */
+
+      if(Reverse_flag)  iReverse(traj) ;
 
 /*------------------------------------- Создание глобального объекта */
 
@@ -1948,8 +1969,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /*---------------------------------------------------- Перебор точек */
 
-   for(i=0 ; i<mPath_vectors ; i++) {                               /* CIRCLE.1 - Начинаем с наиболее удал. */
-                                                                    /*         точек и до 'через одну' ... */
+   for(i=0 ; i<mPath_vectors ; i++) {                               /* CIRCLE.1 */
+
                                       start=i ;
                                         end=i+1 ;
 
@@ -1962,6 +1983,61 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*-------------------------------------------------------------------*/
 
    return(0) ;
+}
+
+
+/*********************************************************************/
+/*								     */
+/*                    Реверс траектории                              */
+
+  void  RSS_Module_Path::iReverse(TRAJECTORY *traj)
+
+{
+   double  tmp ;
+      int  i ;
+      int  j ;
+      int  k ;
+
+#define  FRAME  traj->Path_frame
+
+/*------------------------------------------------------- Подготовка */
+
+/*-------------------------------------------- Перестановка векторов */
+
+   for(i=0 ; i<traj->Path_vectors ; i++) {
+
+           j=traj->Path_vectors-i-1 ;
+        if(j<=i)  break ;
+
+      for(k=0 ; k<FRAME ; k++) {
+                                  tmp =traj->Vectors[i*FRAME+k] ;
+              traj->Vectors[i*FRAME+k]=traj->Vectors[j*FRAME+k] ;
+              traj->Vectors[j*FRAME+k]=tmp ;
+                               }
+                                         }
+/*--------------------------------------------- Смена знака векторов */
+
+   for(i=0 ; i<traj->Path_vectors*FRAME ; i++)
+                traj->Vectors[i]=-traj->Vectors[i] ;
+
+/*--------------------------------------- Перестановка узловых точек */
+
+   for(i=0 ; i<traj->Path_vectors+1 ; i++) {
+
+           j=traj->Path_vectors-i ;
+        if(j<=i)  break ;
+
+      for(k=0 ; k<FRAME ; k++) {
+                                 tmp =traj->Path[i*FRAME+k] ;
+                traj->Path[i*FRAME+k]=traj->Path[j*FRAME+k] ;
+                traj->Path[j*FRAME+k]=tmp ;
+                               }
+                                           }
+/*-------------------------------------------------------------------*/
+
+#undef  FRAME
+
+   return ;
 }
 
 

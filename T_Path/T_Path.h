@@ -126,6 +126,7 @@
                      int  iSearchReach    (RSS_Point *) ;           /* Поиск пути до целевой точки */
                     void  iReducePath     (void) ;                  /* Сократить траекторию */
                      int  iShowPath       (void) ;                  /* Показать траекторию */
+                    void  iReverse        (TRAJECTORY *) ;          /* Реверс траектории */
                     void  iGenerateVector (double *) ;              /* Генерация случайного вектора */
          virtual     int  iCalculateVector(double *,                /* Вычисление вектора */
                                            double *, double *) ;

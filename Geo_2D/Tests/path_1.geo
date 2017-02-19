@@ -50,4 +50,7 @@ la 1 0 -1
 
 !l
 
-path search/d:trag1 set1
+path search/rdq:trag1 set1
+trag1 copy/r trag2
+trag1 trace/d
+trag2 trace/d
