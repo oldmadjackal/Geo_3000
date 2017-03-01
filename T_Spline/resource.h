@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by T_Spline.rc
 //
 #define IDC_HELP_LIST                   1000
@@ -8,8 +8,10 @@
 #define IDC_ANGLE_ACC                   1001
 #define IDC_START_CUR                   1002
 #define IDC_DRIVES_LIST                 1002
+#define IDC_LINE_STEP                   1002
 #define IDC_START_MID                   1003
 #define IDC_DRIVES_TITLE                1003
+#define IDC_ANGLE_STEP                  1003
 #define IDC_DRAW_SCAN                   1004
 #define IDC_V_MAX                       1004
 #define IDC_CHECK_RANGES                1005

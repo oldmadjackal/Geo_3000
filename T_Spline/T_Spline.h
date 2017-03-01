@@ -46,6 +46,7 @@
                    double  a_max ;            /* Макс.ускорение привода */
                      char  f_err[1024] ;      /* Функция точности привода */ 
 
+                      int  err_reset ;        /* Признак сброса контекста рассчета ошибки */
                      void *calculate ;        /* Контекст вычислителя */
                    double  d_err ;            /* Величина ошибки */
                    double  v ;                /* Скорость привода */
@@ -76,6 +77,8 @@ typedef class RSS_Object_Path  PATH ;
                          TRAJECTORY *mContextObject ;                   /* Обьект 'контекстной' операции */
 
                                 int  mTurnZone_coef ;                   /* Относительная длина зоны перехода */
+                             double  mLineStep ;                        /* Шаг по линейным координатам */ 
+                             double  mAngleStep ;                       /* Шаг по угловым координатам */ 
 
                              double  mAccuracy[32] ;                    /* Контрольная точность рассчета */
 
@@ -99,6 +102,8 @@ typedef class RSS_Object_Path  PATH ;
              virtual      int  vExecuteCmd    (const char *) ;          /* Выполнить команду */
              virtual      int  vExecuteCmd    (const char *, RSS_IFace *) ;
              virtual     void  vShow          (char *) ;                /* Отобразить связанные данные */
+             virtual     void  vReadSave       (std::string *) ;        /* Чтение данных из строки */
+             virtual     void  vWriteSave      (std::string *) ;        /* Записать данные в строку */
              virtual     void  vChangeContext (void)  ;                 /* Выполнить действие в контексте потока */
              virtual      int  vReadData      (RSS_Context ***,         /* Считать данные контекста модуля из строки */
                                                std::string *   ) ;
@@ -112,6 +117,7 @@ typedef class RSS_Object_Path  PATH ;
                           int  cConfig        (char *, RSS_IFace *) ;   /* Инструкция CONFIG */ 
                           int  cDrive         (char *, RSS_IFace *) ;   /* Инструкция DRIVE */ 
                           int  cGlide         (char *, RSS_IFace *) ;   /* Инструкция GLIDE */ 
+                          int  cTrace         (char *, RSS_IFace *) ;   /* Инструкция TRACE */ 
 
                           int  iDrawPath      (PATH *, RSS_Object *);   /* Отрисовка траектории */
                           int  iCheckPath     (PATH *) ;                /* Контрольная трассировка траектории */
@@ -124,7 +130,7 @@ typedef class RSS_Object_Path  PATH ;
                                                    SEGMENT *, double *,
                                                  RSS_Module_Spline_Context **) ;  
                           int  iTurnSegment   (int, double *, double *, /* Построение движения на спряжении прямых участков */
-                                                    double *,
+                                                    double *, double *,
                                                     double  , double *,
                                                    SEGMENT *, double *,
                                                  RSS_Module_Spline_Context **) ;  
@@ -140,6 +146,7 @@ typedef class RSS_Object_Path  PATH ;
                                                                         /* Работа с формулой ошибки привода */
                           int  iErrorCalc     (RSS_Module_Spline_Context *,  
                                                                char * ) ;
+                       double  iAngleDif      (double) ;                /* Вычисление разности углов */
                          void  iDebug         (char *, char *, int) ;   /* Отладочная печать в файл */ 
                          void  iDebug         (char *, char *) ;
 

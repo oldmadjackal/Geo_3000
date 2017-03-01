@@ -151,6 +151,8 @@
  static RSS_Module_Spline *Module ;
                       int  elm ;         /* Идентификатор элемента диалога */
                       int  status ;
+                     char  text[256] ;
+                     char *end ;
 
 /*------------------------------------------------- Большая разводка */
 
@@ -162,6 +164,11 @@
                               Module=(RSS_Module_Spline *)lParam ;
 /*- - - - - - - - - - - - - - - - - - - - -  Инициализация элементов */
                  SETi(IDC_TURN_ZONE, Module->mTurnZone_coef) ;
+
+              sprintf(text, "%lf", Module->mLineStep) ;
+                 SETs(IDC_LINE_STEP, text) ;
+              sprintf(text, "%lf", Module->mAngleStep) ;
+                 SETs(IDC_ANGLE_STEP, text) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
   			  return(FALSE) ;
   			     break ;
@@ -182,6 +189,20 @@
     case WM_CLOSE:      {
 
              Module->mTurnZone_coef=GETi(IDC_TURN_ZONE) ;
+
+                                 GETs(IDC_LINE_STEP, text) ;
+             Module->mLineStep=strtod(text, &end) ;
+         if(*end!=0) {
+                        SEND_ERROR("Некорректное значение шага координат") ;
+  			       return(FALSE) ;
+                     }
+
+                                  GETs(IDC_ANGLE_STEP, text) ;
+             Module->mAngleStep=strtod(text, &end) ;
+         if(*end!=0) {
+                        SEND_ERROR("Некорректное значение шага углов") ;
+  			       return(FALSE) ;
+                     }
 
                             EndDialog(hDlg, 0) ;
   			       return(FALSE) ;

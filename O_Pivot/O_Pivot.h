@@ -80,7 +80,7 @@
 
   typedef  struct {
                        int  use_flag ;             /* Флаг использования */
-                      char  name[256] ;            /* Название звена */
+                      char  name[64] ;             /* Название звена */
 
                     double  joint ;                /* Углы в шарнире */
                        int  joint_fixed ;          /* Флаг подвижного шарнира */

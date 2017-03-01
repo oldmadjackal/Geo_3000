@@ -448,7 +448,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                     SendMessage(ITEM(IDC_STATUS_INFO),
                                   WM_SETFONT, (WPARAM)font, 0) ;
 /*- - - - - - - - - - - - - - - - -  Инициализация значеий элементов */
-          SETs(IDC_COMMAND, "@tests\\path_1.geo") ;
+          SETs(IDC_COMMAND, "@tests\\spline_1.geo") ;
 /*- - - - - - - - - - - - - - - - - - - - - - - Инициализация фокуса */
                           SetFocus(ITEM(IDC_COMMAND)) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
@@ -824,6 +824,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
             char *next ;
             char *name ;
             char *end ;
+            char *quotes ;
             char *word2 ;
             char *word3 ;
             char  work[1024] ;
@@ -1126,12 +1127,23 @@ typedef  struct {
 
    if(strchr(command, '*')!=NULL) {
 
-        do {
+        do {                                                        /* Подстановка производится до первой кавычки в строке */
                  end=strchr(command, '*') ;
               if(end==NULL)  break ;
 
+                 quotes=strchr(command, '"') ;
+              if(quotes!=NULL && quotes<end)  break ;
+
                   memmove(end+strlen(__object_def), end+1, strlen(end+1)+1) ;
                    memcpy(end, __object_def, strlen(__object_def)) ;
+
+           } while(1) ;
+
+        do {                                                        /* Затираем кавычки */ 
+                 end=strchr(command, '"') ;
+              if(end==NULL)  break ;
+
+                     strcpy(end, end+1) ;
 
            } while(1) ;
                                  }

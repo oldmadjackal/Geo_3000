@@ -295,9 +295,6 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
     void  RSS_Object::vAddMorphology(RSS_Morphology *elem)
 {
-  char *ptr ;
-
-#define  _SIZE       128
 #define      M     Morphology[Morphology_cnt-1] 
 
         Morphology_cnt++ ;
@@ -309,22 +306,12 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                   return ;
                           }
 
-                                 memset(&M, 0, sizeof(M)) ;         /* Инициализация описания */
+                         memset(&M, 0, sizeof(M)) ;                 /* Инициализация описания */
 
-        ptr=(char *)calloc(3, _SIZE) ;                              /* Раземщаем буфер описания элемента */
-     if(ptr==NULL) {
-                       Morphology_cnt-- ;
-                            return ;
-                   }
-
-                                M.object=ptr ;
-                                M.link  =ptr+_SIZE ;
-                                M.body  =ptr+_SIZE*2 ;
                          strcpy(M.object, this->Name) ;
-   if(elem->link!=NULL)  strcpy(M.link, elem->link) ;
-   if(elem->body!=NULL)  strcpy(M.body, elem->body) ;
+   if(elem->link!=NULL)  strcpy(M.link,   elem->link) ;
+   if(elem->body!=NULL)  strcpy(M.body,   elem->body) ;
         
-                                M.ptr  =elem->ptr ;
 #undef   M
 }
 

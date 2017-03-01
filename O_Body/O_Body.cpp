@@ -1136,8 +1136,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /*----------------------------- Добавление морфологического элемента */
 
-                                  morpho.link="Body" ;
-                                  morpho.body="Body" ;
+                           strcpy(morpho.link, "Body") ;
+                           strcpy(morpho.body, "Body") ;
                                   morpho.ptr =NULL ;
           object->vAddMorphology(&morpho) ;
 

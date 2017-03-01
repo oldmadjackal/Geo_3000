@@ -99,7 +99,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*								    */
 /*                            Список команд                         */
 
-  struct RSS_Module_Spline_instr  
+  struct RSS_Module_Spline_instr
          RSS_Module_Spline_InstrList[]={
 
  { "help",   "?",  "#HELP (?) - список доступных команд", 
@@ -110,7 +110,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                    &RSS_Module_Spline::cConfig   },
  { "drive",  "d",  "#DRIVE (D) - задание параметров приводов в степенях подвижности", 
                    " DRIVE <Имя обьекта>\n"
-                   " DRIVE <Имя обьекта> <Номер степени> <Vmax> <Amax> <Формула расчета ошибки>\n",
+                   " DRIVE <Имя обьекта> <Название степени> <Vmax> <Amax> <Формула расчета ошибки>\n",
                    &RSS_Module_Spline::cDrive   },
  { "glide",  "g",  "#GLIDE (G)- рассчитать прохождение сглаженной траектории",
                    " GLIDE[/AESIQ] <Имя траектории>\n"
@@ -120,6 +120,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                    "   I - Показывать информацию о процессе\n"
                    "   Q - Отработка без информации\n",
                    &RSS_Module_Spline::cGlide },
+ { "trace",  "t",  "#TRACE (T)- показать прохождение сглаженной траектории",
+                   " TRACE[/E] <Имя траектории>\n"
+                   "   E - Показать трубку ошибок\n",
+                   &RSS_Module_Spline::cTrace },
  {  NULL }
                                        } ;
 
@@ -145,6 +149,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
              mInstrList=RSS_Module_Spline_InstrList ;
 
          mTurnZone_coef=5 ;
+         mLineStep     =0.05 ;
+         mAngleStep    =5.00 ;
 
         mErrorPipeColor=RGB(200, 0, 0) ;
 
@@ -328,6 +334,95 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 }
 
 
+/********************************************************************/
+/*								    */
+/*		        Считать данные из строки		    */
+
+    void  RSS_Module_Spline::vReadSave(std::string *data)
+
+{
+                       char *buff ;
+                        int  buff_size ;
+                       char *work ;
+                       char *value ;
+                       char *end ;
+
+/*----------------------------------------------- Контроль заголовка */
+
+   if(memicmp(data->c_str(), "#BEGIN MODULE SPLINE\n", 
+                      strlen("#BEGIN MODULE SPLINE\n")))  return ;
+
+/*------------------------------------------------ Извлечение данных */
+
+            buff_size=data->size()+16 ;
+            buff     =(char *)
+                        gMemCalloc(1, buff_size, 
+                                   "RSS_Module_Spline::vReadSave.buff", 0, 0) ;
+     strcpy(buff, data->c_str()) ;
+
+/*------------------------------------------------- Параметры модуля */
+
+   if(!memicmp(buff, "#BEGIN MODULE SPLINE\n", 
+              strlen("#BEGIN MODULE SPLINE\n"))) {                  /* IF.1 */
+
+                work=buff+strlen("#BEGIN MODULE SPLINE\n") ;
+
+    for( ; ; work=end+1) {                                          /* CIRCLE.0 */
+
+          end=strchr(work, '\n') ;
+       if(end==NULL)  break ;
+         *end=0 ;
+
+          value=strchr(work, '=') ;
+       if(value==NULL)  continue ;
+         *value=0 ;
+          value++ ;
+
+       if(!stricmp(work, "TURN_ZONE"   ))  mTurnZone_coef=strtol(value, &end, 10) ;
+       if(!stricmp(work, "LINE_STEP"   ))  mLineStep     =strtod(value, &end) ;
+       if(!stricmp(work, "ANGLE_STEP"  ))  mAngleStep    =strtod(value, &end) ;
+                         }                                          /* CONTINUE.0 */
+                                                 }                  /* END.1 */
+/*-------------------------------------------- Освобождение ресурсов */
+
+                gMemFree(buff) ;
+
+/*-------------------------------------------------------------------*/
+
+#undef  T
+#undef  D
+
+}
+
+
+/********************************************************************/
+/*								    */
+/*		        Записать данные в строку		    */
+
+    void  RSS_Module_Spline::vWriteSave(std::string *text)
+
+{
+  char  value[1024] ;
+
+/*----------------------------------------------- Заголовок описания */
+
+     *text="#BEGIN MODULE SPLINE\n" ;
+
+    sprintf(value, "TURN_ZONE=%d\n", mTurnZone_coef) ;
+     *text+=value ;
+    sprintf(value, "LINE_STEP=%lf\n", mLineStep) ;
+     *text+=value ;
+    sprintf(value, "ANGLE_STEP=%lf\n", mAngleStep) ;
+     *text+=value ;
+
+/*------------------------------------------------ Концовка описания */
+
+     *text+="#END\n" ;
+
+/*-------------------------------------------------------------------*/
+}
+
+
 /*********************************************************************/
 /*								     */
 /*             Выполнить действие в контексте потока                 */
@@ -397,8 +492,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
      entry=strstr(buff, "F_ERR=") ;  
             memset(data->f_err, 0, sizeof(data->f_err)) ;
            strncpy(data->f_err, entry+strlen("F_ERR="), sizeof(data->f_err)-1) ;
-
-                   iErrorCalc(data, data->f_err) ;                  /* Компилируем формулу */
+                   data->err_reset=1 ;
 
 /*-------------------------------------------- Освобождение ресурсов */
 
@@ -521,7 +615,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*		      Реализация инструкции DRIVE                   */
 /*								    */
 /*  DRIVE <Имя обьекта>                                             */
-/*  DRIVE <Имя обьекта> <Номер степени> ...                         */
+/*  DRIVE <Имя обьекта> <Название степени> ...                      */
 /*                   ...<Vmax> <Amax> <Формула расчета ошибки>      */
 
   int  RSS_Module_Spline::cDrive(char *cmd, RSS_IFace *iface)
@@ -609,6 +703,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                     }
 
          strcpy(data->name, mDrives[i].name) ;                      /* Пропись названия привода */
+                data->err_reset=1 ;                                 /* Сброс контекста расчета ошибки */
 
              context->data=data ;                                   /* Пропись данных контекста */
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
@@ -619,15 +714,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
      do {                                                           /* BLOCK */
 /*- - - - - - - - - - - - - -  Определяем индекс степени подвижности */
-               i=strtoul(pars[1], &end, 10) ;                       /* Извлекаем номер степени */
-         if(*end!=0)  break ;                                       /* Если некорректный формат... */
+           for(i=0 ; i<mDrives_cnt ; i++)                           /* Ищем степень по имени */
+             if(!stricmp(mDrives[i].name, pars[1]))  break ;
 
-            i-- ;
-         if(i<        0   ||
-            i>=mDrives_cnt  ) {
-                      SEND_ERROR("SPLINE::DRIVE - Несуществующая степень подвижности") ;
+         if(i>=mDrives_cnt) {
+                      SEND_ERROR("Неизвестная степень подвижности") ;
                                   return(-1) ;
-                              }
+                            }
 
          if(mDrives[i].fixed)  break ;                              /* Если степень неподвижна... */
 /*- - - - - - - - - - - - - - - - - - -  Извлечение контекста модуля */
@@ -780,7 +873,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
     if(traj_name==NULL) {                                           /* Если имя не задано... */
                    SEND_ERROR("Не задано имя траектории.\n"
-                              "Например: INDICATE <Имя_траектории> ...") ;
+                              "Например: GLIDE <Имя_траектории> ...") ;
                                      return(-1) ;
                         }
 
@@ -822,6 +915,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #define  C     mDrives[i].contexts
 
+                 memset(drives, 0, sizeof(drives)) ;
+
     for(i=0 ; i<mDrives_cnt ; i++) {                                /* CIRCLE.1 - Перебираем степени подвижности */
 
        if(mDrives[i].fixed)  continue ;                             /* Если фиксированная степень... */
@@ -861,14 +956,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*---------------------------- Определение трассировочных параметров */
 
 #define  P   path_object->Trajectory
+#define  W   work_object->Trajectory
 
                 this->mModulePath->mPath_object=P->Path_object ;
          memcpy(this->mModulePath->mPath_degrees, P->Path_degrees,           
                                P->Path_frame*sizeof(P->Path_degrees[0])) ;
 
                this->mModulePath->iCulculateSteps() ;
-
-#undef  P
 
 /*---------------------------- Определение допустимых переходных зон */
 
@@ -880,8 +974,6 @@ BOOL APIENTRY DllMain( HANDLE hModule,
        if(status==-1)  return(0) ;
 
 //                iDrawPath(work_object, master) ;
-
-#define  W   work_object->Trajectory
 
 /*-------------------------------------- Размещение рабочих разделов */
 
@@ -918,6 +1010,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                          mAttempt=  0 ;
 
    for(n=0 ; n<W->Path_vectors ; n++) {                             /* CIRCLE.1 - Перебор участков траектории */
+
+           if(this->kernel->stop)  break ;                          /* Если внешнее прерывание поиска */
 
          mAttempt++ ;
 //    if(mAttempt==6)  SEND_ERROR("Critical attempt reached!") ;
@@ -963,8 +1057,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                            iDebug("iTurnSegment", NULL) ;
               status=iTurnSegment(trace_regime, &segment_time[n],
-                                     W->Path+(n  )*W->Path_frame,
-                                     W->Path+(n+1)*W->Path_frame,
+                                     W->Path+(n    )*W->Path_frame,
+                                     W->Path+(n+1  )*W->Path_frame,
+                                     P->Path+(n/2+1)*P->Path_frame,
                                         a_available[n],
                                          V1(n), &drive_forces[n], V2(n), drives) ;
                  }
@@ -1039,6 +1134,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                   for(j=0 ; j<W->Path_frame ; j++)  V1(n)[j]*=0.95 ;
 
+                  for(j=0 ; j<W->Path_frame ; j++) {
+                    sprintf(text, "Скорость на участке %d - %d = %lf", n, j, V1(n)[j]) ;
+                     iDebug(text, NULL) ;
+                                                   }
+
                                         trace_regime =_V_CORRECTION ;
                                        a_available[n]= 1. ;
                                                    n-= 2 ;
@@ -1049,6 +1149,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                       }                             /* CONTINUE.1 */
 /*------------------------------------- Регистрация контекста модуля */
 
+   if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
 /*- - - - - - - - - - - - - - - Создание/извлечение контекста модуля */
           context=vAddData(&path_object->Trajectory->contexts) ;
        if(context==NULL) {                                          /* Если не удалось разместить... */
@@ -1082,8 +1183,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                            data->ErrorPipe     =mErrorPipe ; 
                            data->ErrorPipe_cnt =mErrorPipe_cnt ; 
                            data->ErrorPipeColor=mErrorPipeColor ; 
-
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+                           }
 /*------------------------------------ Отoбражение данных таймеринга */
+
+   if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
 
        for(full_time=0., i=0 ; i<W->Path_vectors ; i++)             /* Определяем общее время прохождения */
               full_time+=segment_time[i] ;
@@ -1102,7 +1206,15 @@ BOOL APIENTRY DllMain( HANDLE hModule,
         SendMessage(this->kernel_wnd, WM_USER,                      /*  Выдаем данные на экран */
                     (WPARAM)_USER_SHOW_INFO, (LPARAM)text) ;
 
+                           }
 /*----------------------- Выдача результата в межмодульный интерфейс */
+
+   if( this->kernel->stop) {                                        /* Если внешнее прерывание поиска */
+
+              iface->vSignal("ERROR", "Внешнее прерывание") ;
+
+                           }
+   else                    {
 
                      sprintf(text, "%-20.10lf:", full_time) ;
 
@@ -1124,9 +1236,14 @@ BOOL APIENTRY DllMain( HANDLE hModule,
  
                 iface->vSignal("DONE", text) ;                      /* Выдаем результат по интерфейсу межмодульной связи */
 
+                           }
+
 #undef   W
+#undef   P
 
 /*-------------------------------------- Отрисовка трубки траектории */
+
+   if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
 
      if(!quiet_flag) {
 
@@ -1134,6 +1251,455 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                            this->kernel->vShow(NULL) ;
                      }
+                           }
+/*-------------------------------------- Удаление рабочей траектории */
+
+                             sprintf(text, "kill %s", _TEMP_NAME) ;
+           this->kernel->vExecuteCmd(text) ;
+
+/*-------------------------------------------- Освобождение ресурсов */
+
+                            gMemFree(v) ;            
+                            gMemFree(a_available) ;
+                            gMemFree(segment_time) ;
+
+/*-------------------------------------------------------------------*/
+
+                   iDebug("Complete", NULL) ;
+
+#undef   OBJECTS
+#undef   OBJECTS_CNT
+
+#undef  _PARS_MAX    
+
+   return(0) ;
+}
+
+
+/********************************************************************/
+/*								    */
+/*		      Реализация инструкции TRACE                   */
+/*								    */
+/*         TRACE <Имя траектории>                                   */
+
+  int  RSS_Module_Spline::cTrace(char *cmd, RSS_IFace *iface)
+
+{
+#define   _PARS_MAX   2
+
+                       char  *pars[_PARS_MAX] ;
+                       char  *traj_name ;
+                 RSS_Object  *master ;
+            RSS_Object_Path  *path_object ;
+                RSS_Context  *context ;
+  RSS_Module_Spline_Context  *data ;
+  RSS_Module_Spline_Context  *drives[50] ;
+                    SEGMENT   drive_forces[50] ;
+                        int   trace_regime ;      /* Режим трассировки участка */
+                     double  *segment_time ;      /* Список времен по сегментам */
+                     double   full_time ;
+                     double  *v ;                 /* Массив переходных скоростей по сегментам */
+                     double  *a_available ;       /* Массив коэф.ускорений по сегментам */
+                        int   status ;
+                     double   range ;
+                     double   range_max ;
+                       char  *end ;
+                       char   text[1024] ;
+                       char   desc[1024] ;
+                       char   tmp[1024] ;
+                        int   n ;
+                        int   i ;
+                        int   j ;
+
+#define   OBJECTS       this->kernel->kernel_objects 
+#define   OBJECTS_CNT   this->kernel->kernel_objects_cnt 
+
+#define    V1(n)    (&v[(n  )*P->Path_frame])
+#define    V2(n)    (&v[(n+1)*P->Path_frame])
+
+/*------------------------------------------------- Входной контроль */
+
+/*---------------------------------------- Разборка командной строки */
+/*- - - - - - - - - - - - - - - - - - -  Выделение ключей управления */
+                                  mShowErrorPipe=0 ;
+                                       mIndicate=1 ;
+
+     if(*cmd=='/') {
+ 
+                if(*cmd=='/')  cmd++ ;
+
+                   end=strchr(cmd, ' ') ;
+                if(end==NULL) {
+                       SEND_ERROR("Spline.Trace:Некорректный формат команды") ;
+                                       return(-1) ;
+                              }
+                  *end=0 ;
+
+                if(strchr(cmd, 'e')!=NULL ||
+                   strchr(cmd, 'E')!=NULL   )    mShowErrorPipe=1 ;
+
+                           cmd=end+1 ;
+                   }
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */        
+    for(i=0 ; i<_PARS_MAX ; i++)  pars[i]=NULL ;
+
+    for(end=cmd, i=0 ; i<_PARS_MAX ; end++, i++) {
+      
+                pars[i]=end ;
+                   end =strchr(pars[i], ' ') ;
+                if(end==NULL)  break ;
+                  *end=0 ;
+                                                 }
+
+    for(i=0 ; i<_PARS_MAX ; i++)  
+      if( pars[i]    !=NULL && 
+         (pars[i])[0]==  0    )  pars[i]=NULL ;
+
+                    traj_name=pars[0] ;
+
+/*---------------------------------------- Контроль имени траектории */
+
+    if(traj_name==NULL) {                                           /* Если имя не задано... */
+                   SEND_ERROR("Не задано имя траектории.\n"
+                              "Например: TRACE <Имя_траектории> ...") ;
+                                     return(-1) ;
+                        }
+
+       for(i=0 ; i<OBJECTS_CNT ; i++)
+         if(!stricmp(OBJECTS[i]->Name, traj_name)) {
+                        path_object=(RSS_Object_Path *)OBJECTS[i] ;
+                                                      break ;  
+                                                   }
+
+         if(i==OBJECTS_CNT) {                                       /* Если траектория не найдена... */
+             SEND_ERROR("Траектории с таким именем НЕ существует") ;
+                                return(-1) ;
+                            }
+
+         if(stricmp(path_object->Type, "Path")) {                   /* Контролируем тип объекта-траектории */
+             SEND_ERROR("Указанный объект не является траекторией") ;
+                                return(-1) ;                            
+                                                }
+
+               master=path_object->Trajectory->Path_object ;        /* Извлекаем мастер-объект траектории */
+
+/*------------------------- Извлечение описаний степеней подвижности */
+
+        mDrives_cnt=master->vGetJoints(mDrives) ;
+     if(mDrives_cnt<=0) {
+             SEND_ERROR("Объект не имеет степеней подвижности") ;
+                                return(-1) ;
+                        }
+/*------------------------------------------ Проверка полноты данных */
+
+#define  C     mDrives[i].contexts
+
+                 memset(drives, 0, sizeof(drives)) ;
+
+    for(i=0 ; i<mDrives_cnt ; i++) {                                /* CIRCLE.1 - Перебираем степени подвижности */
+
+       if(mDrives[i].fixed)  continue ;                             /* Если фиксированная степень... */
+
+       if(mDrives[i].contexts==NULL) {                              /* Если пустой список контекстов */
+             SEND_ERROR("У объекта не заданы параметры приводов.\n"
+                        "Используйте команду SPLINE DRIVE <ИМЯ ОБЪЕКТА>.") ;
+                                         return(-1) ;
+                                     }
+
+      for(j=0 ; C[j]!=NULL ; j++)                                   /* Ищем контекст этого модуля */
+        if(!strcmp(C[j]->name, this->identification))  break ;
+
+        if(C[j]==NULL) {
+             SEND_ERROR("У объекта не заданы параметры приводов.\n"
+                        "Используйте команду SPLINE DRIVE <ИМЯ ОБЪЕКТА>.") ;
+                                         return(-1) ;
+                       }
+
+               data=(RSS_Module_Spline_Context *)C[j]->data ;
+
+        if(data->v_max<=0. ||
+           data->a_max<=0.   ) {
+             SEND_ERROR("У объекта не заданы максимальные скорости/ускорения приводов.\n"
+                        "Используйте команду SPLINE DRIVE <ИМЯ ОБЪЕКТА>.") ;
+                                         return(-1) ;
+                               }
+
+                                        drives[i]=data ;
+                                   }
+#undef  C
+
+/*---------------------------- Определение трассировочных параметров */
+
+#define  P   path_object->Trajectory
+
+                this->mModulePath->mPath_object=P->Path_object ;
+         memcpy(this->mModulePath->mPath_degrees, P->Path_degrees,           
+                               P->Path_frame*sizeof(P->Path_degrees[0])) ;
+
+/*-------------------------------------- Размещение рабочих разделов */
+
+       v           =(double *)gMemCalloc((P->Path_vectors+1)*P->Path_frame, sizeof(double), 
+                                                   "RSS_Module_Trace::cGlide.v", 0, 0) ;
+       a_available =(double *)gMemCalloc( P->Path_vectors,                  sizeof(double),
+                                                   "RSS_Module_Trace::cGlide.a_available", 0, 0) ;
+       segment_time=(double *)gMemCalloc( P->Path_vectors,                  sizeof(double), 
+                                                   "RSS_Module_Trace::cGlide.segment_time", 0, 0) ;
+
+         for(j=0 ; j<W->Path_vectors ; j++)  a_available[j]=1. ;
+
+/*------------------------------------------------ Обсчет траектории */
+
+                                   mErrorPipe    =NULL ;            /* Иниц. данных трубки ошибок */
+                                   mErrorPipe_cnt=  0 ;
+                                   mErrorPipe_max=  0 ;
+
+                                     trace_regime=_TIME_MINIMIZE ;
+
+                                         mAttempt=  0 ;
+
+   for(n=0 ; n<W->Path_vectors ; n++) {                             /* CIRCLE.1 - Перебор участков траектории */
+
+           if(this->kernel->stop)  break ;                          /* Если внешнее прерывание поиска */
+
+         mAttempt++ ;
+//    if(mAttempt==6)  SEND_ERROR("Critical attempt reached!") ;
+
+                sprintf(text, "Участок %d", n) ;
+                 iDebug(text, NULL) ;
+
+           memset(&drive_forces[n], 0, sizeof(drive_forces[n])) ;
+/*- - - - - - - - - - - - - - - - - - - Индикация состояния процесса */
+       if(mIndicate) {
+                          sprintf(text, "Vectors:%3d\r\n"
+                                        "Vector :%3d\r\n"
+                                        "Coef   :%lf\r\n"
+                                        "Attempt:%5d\r\n",
+                                          W->Path_vectors, n, a_available[n], mAttempt) ; 
+                        SEND_INFO(text) ;
+                     } 
+/*- - - - - - - - - - - - - - - -  Опр.закона движения по траектории */
+        if(n==0) {                                                  /* Стартовый участок */
+                           iDebug("iLineSegment.start", NULL) ;
+              status=iLineSegment(trace_regime, &segment_time[n],
+                                     W->Path+(n  )*W->Path_frame,
+                                     W->Path+(n+1)*W->Path_frame,
+                                        a_available[n],
+                                         V1(n), &drive_forces[n], V2(n), drives) ;
+                 }
+        else
+        if(n==W->Path_vectors-1) {                                  /* Финишный участок */
+
+                           iDebug("iLineSegment.finish", NULL) ;
+              status=iLineSegment(_V_CORRECTION, &segment_time[n],
+                                     W->Path+(n  )*W->Path_frame,
+                                     W->Path+(n+1)*W->Path_frame,
+                                        a_available[n],
+                                         V1(n), &drive_forces[n], V2(n), drives) ;
+                                 }
+        else
+        if(n%2)  {                                                  /* Спряжения прямых участков */
+
+              if(trace_regime!=_V_CORRECTION)                       /* Если не коррекция по выходной скорости - */
+                  for(j=0 ; j<W->Path_frame ; j++)                  /*  - строим вектор "выходной скорости"     */ 
+                       V2(n)[j]=(W->Vectors+(n+1)*W->Path_frame)[j] ;
+
+                           iDebug("iTurnSegment", NULL) ;
+              status=iTurnSegment(trace_regime, &segment_time[n],
+                                     W->Path+(n    )*W->Path_frame,
+                                     W->Path+(n+1  )*W->Path_frame,
+                                     P->Path+(n/2+1)*P->Path_frame,
+                                        a_available[n],
+                                         V1(n), &drive_forces[n], V2(n), drives) ;
+                 }
+        else     {                                                  /* Прямые участки */
+                           iDebug("iLineSegment", NULL) ;
+              status=iLineSegment(trace_regime, &segment_time[n],
+                                     W->Path+(n  )*W->Path_frame,
+                                     W->Path+(n+1)*W->Path_frame,
+                                        a_available[n],
+                                         V1(n), &drive_forces[n], V2(n), drives) ;
+                 }
+
+                           trace_regime =_TIME_MINIMIZE ;
+/*- - - - - - - - - - - - - - - - - - - Обработка обратных коррекций */
+         if(status) {
+                           iDebug("BackCorrection", NULL) ;
+
+           if(status==_V_CORRECTION) {
+                  sprintf(text, "Обратная коррекция скорости на участке %d", n) ;
+                   iDebug(text, NULL) ;
+                                        trace_regime =_V_CORRECTION ;
+                                       a_available[n]= 1. ;
+                                                   n-= 2 ;
+                                     }
+           else                      {
+                  sprintf(text, "Неизвестный тип коррекции %d на участке %d (попытка %d)", status, n, mAttempt) ;
+               SEND_ERROR(text) ;
+                                     }
+ 
+                        continue ;
+                    }
+
+            sprintf(text, "Время прохождения участка %lf", segment_time[n]) ;
+//       SEND_ERROR(text) ;
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Проход траектории */
+                    iCutErrorPipe(n) ;                              /* Отсекаем трубку последующих сегментов */
+
+             status=iTraceSegment(n, segment_time[n], 
+                                   W->Path+n*W->Path_frame,
+                                     V1(n), &drive_forces[n], 
+                                               drives, master) ;
+/*- - - - - - - - - - - - - - - - - - - - - - - - - -  Анализ ошибок */
+          if(status==_FATAL_ERROR) {                                /* Если критическая ошибка... */
+                sprintf(text, "Критическая ошибка на участке %d ", n) ;
+                 iDebug(text, NULL) ;
+
+              iface->vSignal("ERROR", "Трассировка") ;
+                                        break ;               
+                                   }
+
+          if(status==_PIPE_FAIL) {                                  /* Если коллизии трубки... */
+                sprintf(text, "Коррекция по ускорению %lf на участке %d ", a_available[n], n) ;
+                 iDebug(text, NULL) ;
+
+                                    a_available[n]*=0.95 ;
+                                                  n-- ; 
+                                               continue ;
+                                 }
+ 
+          if(status==_PATH_FAIL) {                                  /* Если коллизии траектории... */
+
+                if(n==0) {
+                              sprintf(text, "Коллизия траектории на начальном учатске (попытка %d)", mAttempt) ;
+                           SEND_ERROR(text) ;
+
+                             iface->vSignal("ERROR", "Трассировка") ;
+                                        break ;               
+                         }
+
+                sprintf(text, "Коррекция по скорости на участке %d", n) ;
+                 iDebug(text, NULL) ;
+
+                  for(j=0 ; j<W->Path_frame ; j++)  V1(n)[j]*=0.95 ;
+
+                  for(j=0 ; j<W->Path_frame ; j++) {
+                    sprintf(text, "Скорость на участке %d - %d = %lf", n, j, V1(n)[j]) ;
+                     iDebug(text, NULL) ;
+                                                   }
+
+                                        trace_regime =_V_CORRECTION ;
+                                       a_available[n]= 1. ;
+                                                   n-= 2 ;
+
+                                               continue ;
+                                 }
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+                                      }                             /* CONTINUE.1 */
+/*------------------------------------- Регистрация контекста модуля */
+
+   if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
+/*- - - - - - - - - - - - - - - Создание/извлечение контекста модуля */
+          context=vAddData(&path_object->Trajectory->contexts) ;
+       if(context==NULL) {                                          /* Если не удалось разместить... */
+            SEND_ERROR("Недостаточно памяти для списка контекстов") ;
+                               return(-1) ;
+                         }
+/*- - - - - - - - - - - - - - - - - - - - - -  Очистка старых данных */
+     if(context->data!=NULL) {
+
+          data=(RSS_Module_Spline_Context *)context->data ;
+
+                                gMemFree(data->ErrorPipe) ;       
+                             }
+/*- - - - - - - - - - - - - - - - -  Регистрация нового блока данных */
+     else                    {
+
+            sprintf(desc, "RSS_Module_Spline_Context: Object[%s]", work_object->Name) ;
+
+          data=(RSS_Module_Spline_Context *)context->data ;
+       if(data==NULL)
+          data=(RSS_Module_Spline_Context *)                        /* Размещение данных контекста */
+                 gMemCalloc(1, sizeof(RSS_Module_Spline_Context),
+                             desc, 0, 0) ;
+       if(data==NULL) {                                             /* Если не удалось разместить... */
+            SEND_ERROR("Недостаточно памяти для контекста модуля") ;
+                           return(-1) ;
+                      }
+                             }
+/*- - - - - - - - - - - - - - - - - - Сохранение данных на контексте */
+             context->data=data ;                                   /* Пропись данных трубки ошибок в контекст */
+                           data->ErrorPipe     =mErrorPipe ; 
+                           data->ErrorPipe_cnt =mErrorPipe_cnt ; 
+                           data->ErrorPipeColor=mErrorPipeColor ; 
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+                           }
+/*------------------------------------ Отoбражение данных таймеринга */
+
+   if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
+
+       for(full_time=0., i=0 ; i<W->Path_vectors ; i++)             /* Определяем общее время прохождения */
+              full_time+=segment_time[i] ;
+
+            sprintf(text, "Общее время: %lf\r\n", full_time) ;
+
+       for(i=0 ; i<W->Path_vectors-1 ; i+=2) {                      /* Формируем данные таймеринга */
+            sprintf(tmp, "%2d  L:%.2lf  T:%.2lf\r\n", i+1, segment_time[i], segment_time[i+1]) ;
+             strcat(text, tmp) ;
+                                             }
+
+            sprintf(tmp, "%2d  L:%.2lf", W->Path_vectors, segment_time[W->Path_vectors-1]) ;
+             strcat(text, tmp) ;
+
+     if(!quiet_flag)                                                /* Если не режим "тешины" */
+        SendMessage(this->kernel_wnd, WM_USER,                      /*  Выдаем данные на экран */
+                    (WPARAM)_USER_SHOW_INFO, (LPARAM)text) ;
+
+                           }
+/*----------------------- Выдача результата в межмодульный интерфейс */
+
+   if( this->kernel->stop) {                                        /* Если внешнее прерывание поиска */
+
+              iface->vSignal("ERROR", "Внешнее прерывание") ;
+
+                           }
+   else                    {
+
+                     sprintf(text, "%-20.10lf:", full_time) ;
+
+    if(W->Path_vectors==1) {
+                     sprintf(tmp, "%.4lf", segment_time[0]) ;
+                      strcat(text, tmp) ;
+                           }
+    else                   {
+       for(i=0 ; i<W->Path_vectors-1 ; i+=2) {                      /* Формируем данные таймеринга */
+           if(i==0)  sprintf(tmp, "%.4lf,", segment_time[i]+segment_time[i+1]/2.) ;
+           else      sprintf(tmp, "%.4lf,", segment_time[i]+segment_time[i-1]/2.+segment_time[i+1]/2.) ;
+                      strcat(text, tmp) ;
+                                             }
+
+                                                        i=W->Path_vectors-1 ;
+                     sprintf(tmp, "%.4lf", segment_time[i]+segment_time[i-1]/2.) ;
+                      strcat(text, tmp) ;
+                           }
+ 
+                iface->vSignal("DONE", text) ;                      /* Выдаем результат по интерфейсу межмодульной связи */
+
+                           }
+
+#undef   W
+#undef   P
+
+/*-------------------------------------- Отрисовка трубки траектории */
+
+   if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
+
+     if(!quiet_flag) {
+
+            iErrorPipeShow_(path_object->Trajectory) ;
+
+                           this->kernel->vShow(NULL) ;
+                     }
+                           }
 /*-------------------------------------- Удаление рабочей траектории */
 
                              sprintf(text, "kill %s", _TEMP_NAME) ;
@@ -1452,9 +2018,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                   }
 /*---------------------------------- Определение предельной скорости */
 
-            i_base=0 ;
+            i_base=-1 ;
 
-   for(i_base=0, i=0 ; i<mDrives_cnt ; i++) {                       /* Определение опорной степени */
+   for(i=0 ; i<mDrives_cnt ; i++) {                                 /* Определение опорной степени */
 
            if(drives[i]==NULL)  continue ;                          /* Пассивные степени игнорируем */
            if(     L[i]==  0.)  continue ;                          /* Неподвижные степени игнорируем */
@@ -1464,7 +2030,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
               K=V_MAX(i_base)*L[i]/(V_MAX(i)*L[i_base]) ;           /* Опр. коэф.превышения скорости */
            if(K>1.)  i_base=i ;                                     /* В качастве опоной выбираем степень     */
                                                                     /*  с наибольшим коэф.превышения скорости */
-                                            }
+                                  }
 
    for(i=0 ; i<mDrives_cnt ; i++) {                                 /* Определение предельной скорости */
           if(     L[i]==  0.)  Vmax[i]= 0. ;
@@ -1665,6 +2231,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                           double  *time_all,
                                           double  *start,
                                           double  *finish,
+                                          double  *node,
                                           double   a_available,
                                           double  *v1,
                                          SEGMENT  *forces,
@@ -1679,6 +2246,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
   double  Vk_correction ;    /* Коэф.коррекции конечной скорости */
   double  Vo_correction ;    /* Коэф.коррекции начальной скорости */
   double  L ;                /* Дистанция */
+  double  Ln ;               /* Дистанция до узла */
+  double  Ln_max ;           /* Предельно допустимое отклонение в сторону узла */
   double  Lt;                /* Дистанция торможения */
   double  Lr;                /* Дистанция разгона */
   double  Vk ;               /* Конечная скорость */
@@ -1729,15 +2298,18 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                   }
 /*------------------------- Определение предельной выходной скорости */
 
+             i_base=-1 ;
 
-   for(i_base=0, i=0 ; i<mDrives_cnt ; i++) {                       /* Определение опорной степени */
+   for(i=0 ; i<mDrives_cnt ; i++) {                                 /* Определение опорной степени */
 
        if(drives[i]==NULL)  continue ;                              /* Пассивные степени игнорируем */
-      
+
+       if(i_base==-1)  i_base=i ;
+
                K=V_MAX(i_base)*v2[i]/(V_MAX(i)*v2[i_base]) ;        /* Опр. коэф.превышения скорости */
        if(fabs(K)>1.)  i_base=i ;                                   /* В качастве опорной выбираем степень    */
                                                                     /*  с наибольшим коэф.превышения скорости */
-                                            }
+                                  }
 /*- - - - - - - - - - - - - Определение предельной конечной скорости */
   if(regime==_V_CORRECTION) {                                       /* При коррекции по конечной скорости в   */
                                                                     /*  качестве предельной выходной скорости */
@@ -1764,6 +2336,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                  if(drives[i]==NULL)  continue ;                    /* Пассивные степени игнорируем */
 
                 L =finish[i]-start[i] ;                             /* Определяем дистанцию */
+                Ln=  node[i]-start[i] ;                             /* Определяем дистанцию до узловой точки */
                 Vo=v1[i] ;
                 Vk=Vend[i] ;
 /*- - - - - - - - - - - - - - - - - - - - - - -  Неподвижные степени */
@@ -1890,13 +2463,33 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*- - - - - - - - - - - - - - - - - - - - - - - - Степени с реверсом */
          else 
          if(Vk*Vo<0.) {
-
                                 sgn=Vo>0.?1.:-1. ;
                                  L =-L*Vo/fabs(Vo) ;                /* Канонизируем знак дистанции */
                                  Lt=Vo*Vo/(2.*A_MAX(i)) ;           /* Опр.дистанции торможения */
-                                 Lr=Vk*Vk/(2.*A_MAX(i)) ;           /* Опр.дистанции разгона */
-                                 Vo=fabs(Vo) ;
-                                 Vk=fabs(Vk) ;
+                             Ln_max=fabs(Ln)*0.8 ;
+                             Vo_max=sqrt(2.*A_MAX(i)*Ln_max) ;      /* Опр.предельную начальную скорость */ 
+
+                if(Lt>Ln_max) {                                     /* Если при торможении мы "проскакиваем" узловую точку */
+                                 Vo_correction=fabs(Vo_max/Vo) ;    /*   - уменьшаем начальную скорость до допустимой      */ 
+                                                                    
+                   for(j=0 ; j<mDrives_cnt ; j++)
+                     if(drives[j]!=NULL) v1[j]*=Vo_correction*0.95 ;
+                                          continue ;
+                              }
+
+                               Ln_max=fabs(node[i]-finish[i])*0.8 ;
+                               Vk_max=sqrt(2.*A_MAX(i)*Ln_max) ;
+                               Lr    =Vk*Vk/(2.*A_MAX(i)) ;         /* Опр.дистанции разгона */
+                               Vo    =fabs(Vo) ;
+                               Vk    =fabs(Vk) ;
+
+                if(Lr>Ln_max) {                                     /* Если конечная скорость слишком велика - */
+                                 Vk_correction=0.99*Vk_max/Vk ;     /*   - уменьшаем ее до допустимой          */ 
+                                                                    /*       и идем на повторный обсчет        */
+                   for(j=0 ; j<mDrives_cnt ; j++)
+                     if(drives[j]!=NULL) Vend[j]*=Vk_correction ;
+                                       break ;
+                              }
  
                 if(Lr-Lt<=L) {                                      /* Если ЕСТЬ дистанция после разгона */
                                   Tmin[i]=Vo/A_MAX(i)+Vk/A_MAX(i)   /*   до максимальной скорости        */
@@ -2304,6 +2897,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
   static  double *pipe ;              /* Список точек среза трубки ошибок */
              int  pipe_cnt ;
        RSS_Point  Top ;               /* Текущее положение целевой точки объекта */
+       RSS_Point  Top_prv ;           /* Предыдущее положение целевой точки объекта */
        RSS_Point  Top_pipe ;          /* Положение целевой точки объекта на срезе трубки ошибок */
              int  status ;
             char  tmp[1024] ;
@@ -2322,7 +2916,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
            memcpy(p, start, mDrives_cnt*sizeof(p[0])) ;
 
     if(pipe==NULL)  pipe=(double *)
-                           gMemCalloc(64, 50*sizeof(*pipe), 
+                           gMemCalloc(256, 50*sizeof(*pipe), 
                                        "RSS_Module_Spline::iTraceSegment.pipe", 0, 0) ;
 
 /*---------------------------------------- Проверка разбивки времени */
@@ -2359,7 +2953,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
            memcpy(p_prv, p,  mDrives_cnt*sizeof(p[0])) ;            /* Перенос предыдущей точки */
 
-/*------------------------------ Подбор оптимального шага по времени */         
+                Top_prv=Top ;
+
+/*------------------------------ Подбор оптимального шага по времени */
 
                           dt=time_all/10. ;                         /* Устанавливаем начальный шаг */
         do {
@@ -2444,8 +3040,21 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                      }
 
                     object->vGetTargetPoint(&Top) ;                 /* Получаем положение целевой точки */  
-                               break ;
+/*- - - - - - - - - - - - - - - - - -  Проверка по шагам трассировки */
+     if(t>0.) {
+
+          if(     fabs(Top.x   -Top_prv.x   )>mLineStep  ||
+                  fabs(Top.y   -Top_prv.y   )>mLineStep  ||
+                  fabs(Top.z   -Top_prv.z   )>mLineStep  ||
+             iAngleDif(Top.azim-Top_prv.azim)>mAngleStep ||
+             iAngleDif(Top.elev-Top_prv.elev)>mAngleStep ||
+             iAngleDif(Top.roll-Top_prv.roll)>mAngleStep   ) {
+                              dt*=0.75 ;
+                               continue ;
+                                                             } 
+              }
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+                               break ;
            } while(1) ;
 
 /*--------------------------------- Обработка "идеального" положения */
@@ -2709,13 +3318,14 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
      if(mShowErrorPipe) {
 
-                glBegin(GL_LINE_STRIP) ;
+                glBegin(GL_LINES) ;
 
        for(i=0 ; i<D->ErrorPipe_cnt ; i++)
          if(D->ErrorPipe[i].rad==1) {
              glVertex3d(D->ErrorPipe[i].p0.x, D->ErrorPipe[i].p0.y, D->ErrorPipe[i].p0.z) ;
              glVertex3d(D->ErrorPipe[i].p1.x, D->ErrorPipe[i].p1.y, D->ErrorPipe[i].p1.z) ;
                                     }   
+
                   glEnd();
 
                         }
@@ -2747,6 +3357,18 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                   char  error[1024] ;
                    int  i ;
 
+/*------------------------------------------------- Входной контроль */
+
+   if(*drive->f_err!=0)  formula=drive->f_err ;
+
+   if( formula==NULL) {  drive->d_err=0. ;  return(0) ;  }
+   if(*formula==  0 ) {  drive->d_err=0. ;  return(0) ;  }
+
+/*-------------------------------------------- Для постоянной ошибки */
+
+   if(drive->err_reset== 0   &&                                     /* Если ошибка постоянная - ее не пересчитываем */
+      drive->calculate==NULL   )  return(0) ;
+
 /*------------------------------------------ Определение Вычислителя */
 
    if(Calc==NULL) {
@@ -2773,7 +3395,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                   }
 /*----------------------------------------------- Компиляция формулы */
 
-   if(formula!=NULL) {
+   if(drive->err_reset) {
 /*- - - - - - - - - - - - - - - - - - - - - - - - Пропись переменных */
                         memset(pars, 0, sizeof(pars)) ;
 
@@ -2782,11 +3404,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                         strcpy(pars[1].name, "A") ;
                                pars[1].ptr=&drive->a ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - Поджатие формулы */
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - Компиляция */
-                          drive->calculate=NULL ;  // ???
- 
-          if(*formula==0)  return(0) ;
-              
+/*- - - - - - - - - - - - - - - - - -  Очистка предыдущего контекста */
+     if(drive->calculate!=NULL) {
+
+           Calc->vCalculate("CLEAR", NULL, NULL, NULL,NULL,
+                                      &drive->calculate, error) ;
+                                }
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - Компиляция */             
              status=Calc->vCalculate("STD_EXPRESSION",              /* Компилируем формулу */
                                       formula, pars, NULL,
                                      &drive->d_err,
@@ -2797,26 +3421,35 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                 return(-1) ;
                          }
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-                     }
+                            drive->err_reset=0 ;
+                        }
 /*----------------------------------------------- Вычисление формулы */
 
    if(drive->calculate!=NULL) {
-
-    if(!stricmp(formula,"0.01*V+0.01*A+0")) {
-                                i=1 ;
-                             }
 
                     Calc->vCalculate("STD_EXPRESSION", 
                                        NULL, NULL, NULL,
                                      &drive->d_err,
                                      &drive->calculate, NULL ) ;
                               }
-   else                       {
-                                        drive->d_err=0. ;
-                              }
 /*-------------------------------------------------------------------*/
 
   return(0) ;
+}
+
+
+/*********************************************************************/
+/*								     */
+/*                    Вычисление разности углов                      */
+
+  double  RSS_Module_Spline::iAngleDif(double  angle)
+{
+  double  dst ;
+
+                 dst =fmod(fabs(angle), 360.) ;
+   if(dst>180.)  dst =360.-dst ;
+
+  return(dst) ;
 }
 
 

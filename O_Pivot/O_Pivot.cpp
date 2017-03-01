@@ -700,10 +700,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 {
 #define   _PARS_MAX   16
       RSS_Object_Pivot *object ;
- RSS_Object_Pivot_Link *link ;
                   char *pars[_PARS_MAX] ;
                   char *name ;
-                   int  delta_flag ;        /* Флаг режима приращений */
                   char *end ;
                    int  i ;
 
@@ -1425,8 +1423,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /*----------------------------- Добавление морфологического элемента */
 
-                                  morpho.link= pars[1] ;
-                                  morpho.body= pars[2] ;
+                           strcpy(morpho.link, pars[1]) ;
+                           strcpy(morpho.body, pars[2]) ;
                                   morpho.ptr =&link->bodies[i] ;
           object->vAddMorphology(&morpho) ;
 
@@ -2673,8 +2671,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /*----------------------------- Добавление морфологического элемента */
 
-                                  morpho.link= link->name ;
-                                  morpho.body= body_model->desc ;
+                           strcpy(morpho.link, link->name) ;
+                           strcpy(morpho.body, body_model->desc) ;
                                   morpho.ptr =&link->bodies ;
           object->vAddMorphology(&morpho) ;
 
@@ -3358,19 +3356,26 @@ BOOL APIENTRY DllMain( HANDLE hModule,
       else          title=NULL ;
 
          status=iLinkDegrees(&link_base, title) ;
-      if(status) return(status) ;
-
+      if(status) {
+                    return(status) ;
+                 }
 
      for(i=0 ; i<_LINKS_MAX && links[i].use_flag ; i++) {
          status=iLinkDegrees(&links[i], title) ;
-      if(status) return(status) ;
+      if(status) {
+                    return(status) ;
+                 }
                                                         }
 
          status=iLinkDegrees(&link_wrist, title) ;
-      if(status) return(status) ;
+      if(status) {
+                    return(status) ;
+                 }
 
          status=iLinkDegrees(&link_gripper, title) ;
-      if(status) return(status) ;
+      if(status) {
+                    return(status) ;
+                 }
 
   return(0) ;
 }
@@ -3882,6 +3887,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                 joints[2*i+1].value_max=link->link_max  ;
                 joints[2*i  ].bounded  =link->link_test ;
                 joints[2*i+1].fixed    =link->link_fixed ;
+
+        sprintf(joints[2*i  ].name, "%s-A", link->name) ;
+        sprintf(joints[2*i+1].name, "%s-L", link->name) ;
 
            if(joints[2*i  ].fixed) {
 //              joints[2*i  ].value_min=0. ;

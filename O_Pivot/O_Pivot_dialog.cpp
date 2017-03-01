@@ -807,10 +807,10 @@
           index=LB_ADD_ROW (IDC_BODY_LIST, body_crn->desc) ;
                 LB_SET_ITEM(IDC_BODY_LIST, index, body_crn) ;
 
-                                         morpho.object= NULL ;      /* Исправление морфологического элемента */   
-                                         morpho.link  = NULL ;
-                                         morpho.body  =body_crn->desc ;
-                                         morpho.ptr   =body_crn ;
+                                  strcpy(morpho.object, "") ;       /* Исправление морфологического элемента */   
+                                  strcpy(morpho.link,   "") ;
+                                  strcpy(morpho.body, body_crn->desc) ;
+                                         morpho.ptr  =body_crn ;
            link->parent->vEditMorphology(&morpho) ;
                            }
                                         return(FALSE) ;
@@ -838,8 +838,8 @@
 
                             link->bodies[n].use_flag=1 ;
 
-                                         morpho.link= link->name ;  /* Добавление морфологического элемента */   
-                                         morpho.body="body" ;
+                                  strcpy(morpho.link, link->name) ; /* Добавление морфологического элемента */   
+                                  strcpy(morpho.body, "body") ;
                                          morpho.ptr =&link->bodies[n] ;
            link->parent->vAddMorphology(&morpho) ;
 
