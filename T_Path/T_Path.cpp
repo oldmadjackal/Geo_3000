@@ -314,6 +314,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                         int  buff_size ;
             RSS_Object_Path *object ;
                  TRAJECTORY *trajectory ;
+                std::string  context_data ;
                        char  name[32] ;
                        char  title[256] ;
                        char  master[32] ;
@@ -329,6 +330,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #define   OBJECTS       this->kernel->kernel_objects 
 #define   OBJECTS_CNT   this->kernel->kernel_objects_cnt 
+
+#define   MODULES       this->kernel->modules 
+#define   MODULES_CNT   this->kernel->modules_cnt 
 
 #define    T  trajectory
 #define    D  trajectory->Path_degrees
@@ -491,6 +495,28 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
               entry=strstr(entry+1, "DIR=") ;
                            }  
+/*- - - - - - - - - - - - - - - - - - - - - -  Извлечение контекстов */
+              entry=strstr(buff, "\nCONTEXT START\n") ;
+        while(entry!=NULL) {
+
+              entry+=strlen("\nCONTEXT START\n") ;
+
+              end=strstr(entry, "\nCONTEXT END\n") ;
+           if(end==NULL)  break ;
+             *end=0 ;
+
+                        context_data=entry ;
+
+             for(i=0 ; i<MODULES_CNT ; i++) {
+                  status=MODULES[i].entry->vReadData(&T->contexts, &context_data) ;
+               if(status>0)  break ;  
+               if(status<0)  break ;  
+                                            }
+
+              *end='\n' ;
+
+              entry=strstr(entry+1, "\nCONTEXT START\n") ;
+                           }  
 /*- - - - - - - - - - - - - - - - - - Ввод объекта в список объектов */
         object=new RSS_Object_Path ;
      if(object==NULL) {
@@ -521,6 +547,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #undef  T
 #undef  D
+
+#undef  MODULES
+#undef  MODULES_CNT
 
 }
 
@@ -3064,10 +3093,12 @@ if(mDebug_stamp==24713) {
     void  RSS_Object_Path::vWriteSave(std::string *text)
 
 {
-  char  field[1024] ;
-   int  i ;
-   int  j ;
-   int  k ;
+  RSS_Context *context ;
+  std::string  context_text ;
+         char  field[1024] ;
+          int  i ;
+          int  j ;
+          int  k ;
 
 #define  T  this->Trajectory
 #define  D  this->Trajectory->Path_degrees
@@ -3109,6 +3140,23 @@ if(mDebug_stamp==24713) {
                                          }
                                                    *text+="\n" ;
                                             }
+/*---------------------------------------- Данные контекстов модулей */
+
+  if(T->contexts!=NULL) {                                           /* Если список контекстов НЕ пуст... */
+
+    for(i=0 ; T->contexts[i]!=NULL ; i++) {                         /* Перебор контекстов */
+
+        context=T->contexts[i] ;
+
+     if(context->data==NULL)  continue ;                            /*  Если контекст пуст... */
+
+        context->module->vWriteData(context, &context_text) ;
+
+                     *text+="CONTEXT START\n" ;
+                     *text+=context_text ;
+                     *text+="\nCONTEXT END\n" ;
+                                          }
+                       }
 /*------------------------------------------------ Концовка описания */
 
      *text+="#END\n" ;

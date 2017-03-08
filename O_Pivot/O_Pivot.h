@@ -79,37 +79,40 @@
                   } RSS_Object_Pivot_Mass ;
 
   typedef  struct {
-                       int  use_flag ;             /* Флаг использования */
-                      char  name[64] ;             /* Название звена */
+                       int   use_flag ;            /* Флаг использования */
+                      char   name[64] ;            /* Название звена */
 
-                    double  joint ;                /* Углы в шарнире */
-                       int  joint_fixed ;          /* Флаг подвижного шарнира */
-                       int  joint_keys ;           /* Набор управляющих клавиш */
-                    double  joint_min ;            /* Диапазон углов в шарнире */
-                    double  joint_max ;
-                       int  joint_test ;           /* Флаг тестирования угла в шарнире на диапазон */
+                    double   joint ;               /* Углы в шарнире */
+                       int   joint_fixed ;         /* Флаг подвижного шарнира */
+                       int   joint_keys ;          /* Набор управляющих клавиш */
+                    double   joint_min ;           /* Диапазон углов в шарнире */
+                    double   joint_max ;
+                       int   joint_test ;          /* Флаг тестирования угла в шарнире на диапазон */
 
-                    double  link ;                 /* Длина звена */
-                       int  link_fixed ;           /* Флаг подвижного звена */
-                       int  link_keys ;            /* Набор управляющих клавиш */
-                    double  link_min ;             /* Диапазон длины звена */
-                    double  link_max ;
-                       int  link_test ;            /* Флаг тестирования длины звена на диапазон */
+                    double   link ;                /* Длина звена */
+                       int   link_fixed ;          /* Флаг подвижного звена */
+                       int   link_keys ;           /* Набор управляющих клавиш */
+                    double   link_min ;            /* Диапазон длины звена */
+                    double   link_max ;
+                       int   link_test ;           /* Флаг тестирования длины звена на диапазон */
 
-                       int  action ;
+                       int   action ;
 
-                    double  x_base ;               /* Координаты базовой точки */
-                    double  y_base ;
-                    double  z_base ;
+                    double   x_base ;              /* Координаты базовой точки */
+                    double   y_base ;
+                    double   z_base ;
 
-                    double  a_azim ;               /* Углы ориентации */
-                    double  a_elev ;
-                    double  a_roll ;
+                    double   a_azim ;              /* Углы ориентации */
+                    double   a_elev ;
+                    double   a_roll ;
       
-     RSS_Object_Pivot_Body  bodies[_BODIES_MAX] ;  /* Список связанных тел */
-     RSS_Object_Pivot_Mass  masses[_BODIES_MAX] ;  /* Список связанных масс */
+     RSS_Object_Pivot_Body   bodies[_BODIES_MAX] ; /* Список связанных тел */
+     RSS_Object_Pivot_Mass   masses[_BODIES_MAX] ; /* Список связанных масс */
 
-                RSS_Object *parent ;               /* Ссылка на породивший объект */
+       struct  RSS_Context **j_contexts ;          /* Список контекстных данных модулей */
+       struct  RSS_Context **l_contexts ;
+
+                RSS_Object  *parent ;              /* Ссылка на породивший объект */
                   } RSS_Object_Pivot_Link ;
 
 /*------------------------------------------ Описание класса объекта */

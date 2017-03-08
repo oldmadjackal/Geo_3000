@@ -354,11 +354,15 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 {
                          char *buff ;
                           int  buff_size ;
+                         char  context_text[8096] ;
+                  std::string  context_data ;
              RSS_Object_Pivot *object ;
         RSS_Object_Pivot_Link *link ; 
         RSS_Object_Pivot_Body  body_tmp ; 
         RSS_Object_Pivot_Mass  mass_tmp ; 
  RSS_Module_Pivot_Create_data  create_data ;
+                    RSS_Joint  joints[50] ;
+                          int  joints_cnt ;
                          char *name ;
                           int  n_link ;
                           int  n_link_prv ;
@@ -368,7 +372,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                          char *entry ;
                          char *value ;
                          char *end ;
+                         char *tmp ;
                           int  i ;
+
+#define   MODULES       this->kernel->modules 
+#define   MODULES_CNT   this->kernel->modules_cnt 
 
 /*----------------------------------------------- Контроль заголовка */
 
@@ -578,6 +586,39 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
            if(body_tmp.desc[0])
                       CreateMass(object, link, &mass_tmp) ;
+/*- - - - - - - - - - - - - - - - - - -  Пропись контекстов степеней */
+               joints_cnt=object->vGetJoints(joints) ;
+
+      for(entry=buff ; ; entry=end) {
+
+             entry=strstr(entry, "\nCONTEXT_J") ;                   /* Ищем описание контекста степени */
+          if(entry==NULL)  break ;
+             entry+=strlen("\nCONTEXT_J") ;
+
+             end=strchr(entry, '\n') ;                              /* Ищем конец описания */
+          if(end==NULL)  end=entry+strlen(entry) ;
+
+                        n_link=strtol(entry, &name, 10) ;           /* Извлекаем 'номер' степени */
+
+                         value=strchr(name, '=') ;                  /* Проходим на значение контекста */
+                      if(value==NULL)  continue ;  
+                         value++ ;
+
+                 memset(context_text, 0, sizeof(context_text)) ;    /* Вырезаем данные контекста */ 
+                strncpy(context_text, value, sizeof(context_text)) ;
+             tmp=strchr(context_text, '\n') ;
+          if(tmp!=NULL)   *tmp=0 ;
+
+                        context_data=context_text ;
+
+             for(i=0 ; i<MODULES_CNT ; i++) {
+                  status=MODULES[i].entry->vReadData(&joints[n_link].contexts, &context_data) ;
+               if(status>0)  break ;  
+               if(status<0)  break ;  
+                                            }
+                                    }
+
+                   object->vSetJoints(joints, joints_cnt) ;
 /*- - - - - - - - - - - - - - - - - - - - - - - -  Перерасчет робота */
                        object->iRobotSkeleton() ;
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
@@ -587,6 +628,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                 free(buff) ;
 
 /*-------------------------------------------------------------------*/
+
+#undef    MODULES
+#undef    MODULES_CNT
+
 }
 
 
@@ -3885,8 +3930,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                 joints[2*i+1].value    =link->link ;
                 joints[2*i+1].value_min=link->link_min ;
                 joints[2*i+1].value_max=link->link_max  ;
-                joints[2*i  ].bounded  =link->link_test ;
+                joints[2*i+1].bounded  =link->link_test ;
                 joints[2*i+1].fixed    =link->link_fixed ;
+
+                joints[2*i  ].contexts =link->j_contexts ;
+                joints[2*i+1].contexts =link->l_contexts ;
 
         sprintf(joints[2*i  ].name, "%s-A", link->name) ;
         sprintf(joints[2*i+1].name, "%s-L", link->name) ;
@@ -3926,17 +3974,22 @@ BOOL APIENTRY DllMain( HANDLE hModule,
       else           link=&this->links[n-4] ;
 
            if(joints[i].type== _A_TYPE) {
-                   link->joint    =joints[i].value ;
-                   link->joint_min=joints[i].value_min ;
-                   link->joint_max=joints[i].value_max ;
+                   link->joint     =joints[i].value ;
+                   link->joint_min =joints[i].value_min ;
+                   link->joint_max =joints[i].value_max ;
+                   link->j_contexts=joints[i].contexts ;
+
                                         }
            else                         {
-                   link->link     =joints[i].value ;
-                   link->link_min =joints[i].value_min ;
-                   link->link_max =joints[i].value_max ;
+                   link->link      =joints[i].value ;
+                   link->link_min  =joints[i].value_min ;
+                   link->link_max  =joints[i].value_max ;
+                   link->l_contexts=joints[i].contexts ;
                                         }
                                  }     
 }
+
+
 /********************************************************************/
 /*								    */
 /*		        Записать данные в строку		    */
@@ -3947,6 +4000,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
   RSS_Object_Pivot_Link *link ; 
   RSS_Object_Pivot_Body *body ; 
   RSS_Object_Pivot_Mass *mass ; 
+              RSS_Joint  joints[50] ;
+                    int  joints_cnt ;
+            RSS_Context *context ;
+            std::string  context_text ;
                    char  field[1024] ;
                     int  i ;
                     int  j ;
@@ -4063,6 +4120,31 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                                     }
                                   }
+/*--------------------------- Данные контекстов степеней подвижности */
+
+            joints_cnt=this->vGetJoints(joints) ;                   /* Извлечение описаний степеней подвижности */
+
+   for(i=0 ; i<joints_cnt ; i++) {                                  /* CIRCLE.1 - Перебираем степени подвижности */
+
+       if(joints[i].fixed)  continue ;                              /* Если фиксированная степень... */
+
+       if(joints[i].contexts==NULL)  continue ;                     /* Если список контекстов пуст... */
+
+    for(j=0 ; joints[i].contexts[j]!=NULL ; j++) {                  /* Перебор контекстов */
+
+        context=joints[i].contexts[j] ;
+
+     if(context->data==NULL)  continue ;                            /*  Если контекст пуст... */
+
+        context->module->vWriteData(context, &context_text) ;
+
+                    sprintf(field, "CONTEXT_J%d=", i) ;
+
+                     *text+=field ;
+                     *text+=context_text ;
+                     *text+="\n" ;
+                                                 }
+                                 }                                  /* CONTINUE.1 */
 /*------------------------------------------------ Концовка описания */
 
      *text+="#END\n" ;

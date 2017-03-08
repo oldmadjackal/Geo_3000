@@ -22,11 +22,16 @@
 /*------------------------------------------------------- Траектория */
 
  typedef struct {                           /* Раскладка закона движения на участке */
+                   double  x0 ;
+                   double  xE ;
+                   double  v0 ;
+                   double  vE ;
                    double  a1 ;
                    double  t1 ;
                    double  a2 ;
                    double  t2 ;
                    double  a3 ;
+                   double  t_all ;
                 } RSS_Module_Spline_Segment ;
 
 #define  SEGMENT  RSS_Module_Spline_Segment
@@ -51,6 +56,10 @@
                    double  d_err ;            /* Величина ошибки */
                    double  v ;                /* Скорость привода */
                    double  a ;                /* Ускорение привода */
+
+                  SEGMENT *Splines ;          /* Законы движения по участкам */
+                      int  Splines_cnt ;      
+                      int  Drivers_cnt ;
 
    RSS_Module_Spline_Pipe *ErrorPipe ;        /* Данный трубки ошибок */
                       int  ErrorPipe_cnt ;
@@ -84,7 +93,6 @@ typedef class RSS_Object_Path  PATH ;
 
                                 int  mShowErrorPipe ;                   /* Показывать трубку ошибок или нет */
                                 int  mAdjustErrorPipe ;                 /* Подстраивать трубку ошибок или нет */
-                                int  mSaveGlided ;                      /* Сохранять или нет сглаженную траекторию */
                                 int  mIndicate ;                        /* Показывать информацию о процессе или нет */
 
              RSS_Module_Spline_Pipe *mErrorPipe ;                       /* Набор точек трубки ошибок */
@@ -117,6 +125,7 @@ typedef class RSS_Object_Path  PATH ;
                           int  cConfig        (char *, RSS_IFace *) ;   /* Инструкция CONFIG */ 
                           int  cDrive         (char *, RSS_IFace *) ;   /* Инструкция DRIVE */ 
                           int  cGlide         (char *, RSS_IFace *) ;   /* Инструкция GLIDE */ 
+                          int  cHide          (char *, RSS_IFace *) ;   /* Инструкция HIDE */ 
                           int  cTrace         (char *, RSS_IFace *) ;   /* Инструкция TRACE */ 
 
                           int  iDrawPath      (PATH *, RSS_Object *);   /* Отрисовка траектории */
@@ -134,8 +143,7 @@ typedef class RSS_Object_Path  PATH ;
                                                     double  , double *,
                                                    SEGMENT *, double *,
                                                  RSS_Module_Spline_Context **) ;  
-                          int  iTraceSegment  (int, double  , double *, /* Движение по участку траектории */
-                                                    double *, SEGMENT *,
+                          int  iTraceSegment  (int, SEGMENT *,          /* Движение по участку траектории */
                                                  RSS_Module_Spline_Context **,
                                                                 RSS_Object *  ) ;
                           int  iSaveErrorPipe (int, RSS_Point *,        /* Сохранение точки трубки ошибок */ 
