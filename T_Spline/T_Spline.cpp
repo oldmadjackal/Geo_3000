@@ -15,6 +15,8 @@
 #include <time.h>
 #include <math.h>
 #include <sys\stat.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
 
 #include "gl\gl.h"
 #include "gl\glu.h"
@@ -123,8 +125,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                    " HIDE <Имя траектории>\n",
                    &RSS_Module_Spline::cHide },
  { "trace",  "t",  "#TRACE (T)- показать прохождение сглаженной траектории",
-                   " TRACE[/E] <Имя траектории>\n"
-                   "   E - Показать трубку ошибок\n",
+                   " TRACE[/ET] <Имя траектории>\n"
+                   "   E - Показать трубку ошибок\n"
+                   "   T - Показать движение манипулятора в режиме реального времени\n",
                    &RSS_Module_Spline::cTrace },
  {  NULL }
                                        } ;
@@ -941,6 +944,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                 mAdjustErrorPipe=0 ;
                                   mShowErrorPipe=0 ;
                                        mIndicate=0 ;
+                                       mRealTime=0 ;
                                       quiet_flag=0 ;
 
      if(*cmd=='/') {
@@ -1428,6 +1432,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*- - - - - - - - - - - - - - - - - - -  Выделение ключей управления */
                                 mAdjustErrorPipe=0 ;
                                   mShowErrorPipe=0 ;
+                                       mRealTime=0 ;
                                        mIndicate=1 ;
 
      if(*cmd=='/') {
@@ -1443,6 +1448,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
                 if(strchr(cmd, 'e')!=NULL ||
                    strchr(cmd, 'E')!=NULL   )    mShowErrorPipe=1 ;
+                if(strchr(cmd, 't')!=NULL ||
+                   strchr(cmd, 'T')!=NULL   )    mRealTime=1 ;
 
                            cmd=end+1 ;
                    }
@@ -2894,6 +2901,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
           double  time_all ;
           double  t ;
           double  dt ;
+   struct _timeb  time_ms ;
+          double  time_0 ;
+          double  time_1 ;
           double  start[50] ;
           double  finish[50] ;
           double  v0[50] ;
@@ -2968,7 +2978,19 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 /*------------------------------------------------ Цикл сканирования */
 
+                  _ftime(&time_ms) ;
+                   time_0=time_ms.time+time_ms.millitm/1000. ;
+
    for(t=0. ; t<time_all ; t+=dt) {                                 /* CIRCLE.0 */
+
+     if(mRealTime) {
+                       this->kernel->vShow(NULL) ;
+
+                     _ftime(&time_ms) ;
+                      time_1=time_ms.time+time_ms.millitm/1000. ;
+
+        if(time_0+t>time_1)  Sleep( (time_0+t-time_1)*1000. ) ;
+                   }
 
            memcpy(p_prv, p,  mDrives_cnt*sizeof(p[0])) ;            /* Перенос предыдущей точки */
 

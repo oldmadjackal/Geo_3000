@@ -94,6 +94,7 @@ typedef class RSS_Object_Path  PATH ;
                                 int  mShowErrorPipe ;                   /* Показывать трубку ошибок или нет */
                                 int  mAdjustErrorPipe ;                 /* Подстраивать трубку ошибок или нет */
                                 int  mIndicate ;                        /* Показывать информацию о процессе или нет */
+                                int  mRealTime ;                        /* Отображать прохождение траектории в режиме реального времени */
 
              RSS_Module_Spline_Pipe *mErrorPipe ;                       /* Набор точек трубки ошибок */
                                 int  mErrorPipe_cnt ;

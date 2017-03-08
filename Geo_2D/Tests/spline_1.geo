@@ -69,3 +69,6 @@ spline glide/ie trag1
 
 #remark Коррекция законов движения для гарантированного прохождения с учетом трубки ошибок
 spline glide/iea trag1
+
+#remark Прохождение траектории в режиме реального времени
+spline trace/t trag1
