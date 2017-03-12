@@ -104,12 +104,15 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        NULL,
                       &RSS_Module_Fast::cHelp   },
  { "config",    "c",  "#CONFIG (C) - задание параметров оптимизация", 
-                       NULL,
+                      " CONFIG - вызов диалогового окна настроек\n"
+                      " CONFIG <key> <value> - задание конкретной настройки по ключу\n",
                       &RSS_Module_Fast::cConfig   },
  { "optimize",  "o",  "#OPTIMIZE (O) -  оптимизация траектории",
-                      " OPTIMIZE[/BD] <Имя траектории>\n"
+                      " OPTIMIZE[/BDQ] <Имя траектории>\n"
                       "   B - Отображать каркас текущей лучшей траектории\n"
-                      "   D - Отображать каркас текущей траектории\n",
+                      "   D - Отображать каркас текущей траектории\n"
+                      "   G - Выдавать диагностические сообщения\n"
+                      "   Q - Не показывать сообщений\n",
                       &RSS_Module_Fast::cOptimize   },
  {  NULL }
                                        } ;
@@ -525,11 +528,50 @@ BOOL APIENTRY DllMain( HANDLE hModule,
   int  RSS_Module_Fast::cConfig(char *cmd, RSS_IFace *iface)
 
 { 
+#define   _PARS_MAX   2
+
+    char *pars[_PARS_MAX] ;
+    char *end ;
+     int  i ;
+
+/*------------------------------------------ Анализ командной строки */
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */
+    for(i=0 ; i<_PARS_MAX ; i++)  pars[i]=NULL ;
+
+    for(end=cmd, i=0 ; i<_PARS_MAX ; end++, i++) {
+      
+                pars[i]=end ;
+                   end =strchr(pars[i], ' ') ;
+                if(end==NULL)  break ;
+
+                if(i<_PARS_MAX-1)  *end=0 ;
+                                                 }
+
+    for(i=0 ; i<_PARS_MAX ; i++)  
+      if( pars[i]    !=NULL && 
+         (pars[i])[0]==  0    )  pars[i]=NULL ;
+/*- - - - - - - - - - - - - - - - - - - - - - - Обработка параметров */
+     if(pars[0]!=NULL) {
+
+       if(!stricmp(pars[0], "TIME_CALC"   ))   strncpy(mTimeCalc_cmd,  pars[1], sizeof(mTimeCalc_cmd)-1) ;
+       if(!stricmp(pars[0], "LINE_CHECK"  ))   strncpy(mLineCheck_cmd, pars[1], sizeof(mLineCheck_cmd)-1) ;
+       if(!stricmp(pars[0], "LINE_DRAW"   ))   strncpy(mLineDraw_cmd,  pars[1], sizeof(mLineDraw_cmd)-1) ;
+       if(!stricmp(pars[0], "SIMPL_OPT"   ))  mSimplification_opt    =strtol(pars[1], &end, 10) ;
+       if(!stricmp(pars[0], "SIMPL_METHOD"))  mSimplification_method =strtol(pars[1], &end, 10) ;
+       if(!stricmp(pars[0], "SMOOTH_OPT"  ))       mSmoothing_opt    =strtol(pars[1], &end, 10) ;
+       if(!stricmp(pars[0], "CUT_OPT"     ))      mCutSegment_opt    =strtol(pars[1], &end, 10) ;
+       if(!stricmp(pars[0], "CUT_TIME"    ))      mCutSegment_MinTime=strtod(pars[1], &end) ;
+
+                           return(0) ;
+                       }
+/*---------------------------------------------------- Вызов диалога */
 
     DialogBoxIndirectParam(GetModuleHandle(NULL),
 			   (LPCDLGTEMPLATE)Resource("IDD_CONFIG", RT_DIALOG),
 			     GetActiveWindow(), Task_Fast_Config_dialog, 
                               (LPARAM)this) ;
+
+/*-------------------------------------------------------------------*/
 
    return(0) ;
 }
@@ -542,6 +584,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
   int  RSS_Module_Fast::cOptimize(char *cmd, RSS_IFace *iface)
 
 { 
+#undef    _PARS_MAX
 #define   _PARS_MAX   2
 
                   RSS_IFace   iface_ ;
@@ -551,6 +594,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                         int   quiet_flag ;       /* Не выдавать экранных сообщений */
                         int   draw_best ;        /* Отображать лучшую траекторию */
                         int   draw_curr ;        /* Отображать текущую траекторию */
+                        int   debug_save ;
                        char  *traj_name ;
             RSS_Object_Path  *path_object ;
             RSS_Object_Path  *best_object ;
@@ -602,6 +646,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                         draw_curr=0 ;
                         draw_best=0 ;
 
+                       debug_save=this->kernel->debug_flag ;
+
      if(*cmd=='/') {
  
                 if(*cmd=='/')  cmd++ ;
@@ -619,10 +665,12 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                    strchr(cmd, 'D')!=NULL   )   draw_curr=1 ;
                 if(strchr(cmd, 'b')!=NULL ||
                    strchr(cmd, 'B')!=NULL   )   draw_best=1 ;
+                if(strchr(cmd, 'g')!=NULL ||
+                   strchr(cmd, 'G')!=NULL   )   this->kernel->debug_flag=1 ;
 
                            cmd=end+1 ;
                    }
-/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */        
+/*- - - - - - - - - - - - - - - - - - - - - - - -  Разбор параметров */
     for(i=0 ; i<_PARS_MAX ; i++)  pars[i]=NULL ;
 
     for(end=cmd, i=0 ; i<_PARS_MAX ; end++, i++) {
@@ -644,6 +692,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
     if(traj_name==NULL) {                                           /* Если имя не задано... */
                    SEND_ERROR("Не задано имя траектории.\n"
                               "Например: OPTIMIZE <Имя_траектории> ...") ;
+                                 this->kernel->debug_flag=debug_save ;
                                      return(-1) ;
                         }
 
@@ -655,11 +704,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
          if(i==OBJECTS_CNT) {                                       /* Если траектория не найдена... */
              SEND_ERROR("Траектории с таким именем НЕ существует") ;
+                              this->kernel->debug_flag=debug_save ;
                                 return(-1) ;
                             }
 
          if(stricmp(path_object->Type, "Path")) {                   /* Контролируем тип объекта-траектории */
              SEND_ERROR("Указанный объект не является траекторией") ;
+                              this->kernel->debug_flag=debug_save ;
                                 return(-1) ;
                                                 }
 /*----------------- Подготовка команд обсчета и отрисовки траекторий */
@@ -720,6 +771,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                        n=0 ;
 
    do {
+           if(this->kernel->stop)  break ;                          /* Если внешнее прерывание поиска */
+
                     n++ ;
 
           new_best=0 ;
@@ -805,6 +858,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
       } while(1) ;
 
+          if(!this->kernel->stop)
            if(!quiet_flag)                                          /*  Если не режим "тешины" - */
                 SEND_ERROR("Секция FAST: Оптимизация завершена.") ;
 
@@ -819,6 +873,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                      iface->vSignal("DONE", result) ;
                          }
 /*-------------------------------------------------------------------*/
+
+       this->kernel->debug_flag=debug_save ;
 
    return(0) ;
 }
@@ -1269,11 +1325,12 @@ typedef  struct {  int  move_point ;
 
 /*       (*path_time<=best_time ||
                   0.> best_time   )  ) do {*/
-/* АНАЛИЗ ДЛЯ СЛУЮАЯ BEST_TIME=-1 */
+/* АНАЛИЗ ДЛЯ СЛУЧАЯ BEST_TIME=-1 */
 
     if(*path_time>best_time ||
        *path_time<      0     ) {
-          SEND_ERROR("RSS_Module_Fast::iMethodCut - Ухудшение времени при дроблении!") ;
+            sprintf(tmp, "RSS_Module_Fast::iMethodCut - Ухудшение времени при дроблении - до %lf, после %lf", best_time, *path_time) ;
+       if(this->kernel->debug_flag) SEND_ERROR(tmp) ;
                                 }
 
          (*best_path)=iCopyPath(*work_path, _BEST_PATH_NAME) ;      /* Сохраняем лучшую мутацию как эталон */

@@ -906,6 +906,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
   RSS_Module_Spline_Context  *data ;
   RSS_Module_Spline_Context  *drives[50] ;
                     SEGMENT  *drive_forces ;
+                  RSS_Joint   drives_save[50] ;   /* Описание степеней подвижности анализируемого объекта */
+                        int   drives_save_cnt ;
                         int   trace_regime ;      /* Режим трассировки участка */
                      double  *segment_time ;      /* Список времен по сегментам */
                      double   full_time ;
@@ -1019,6 +1021,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
              SEND_ERROR("Объект не имеет степеней подвижности") ;
                                 return(-1) ;
                         }
+
+        drives_save_cnt=master->vGetJoints(drives_save) ;
+
 /*------------------------------------ Контрольный прогон траектории */
 
         status=iCheckPath(path_object) ;                            /* Контрольная трассировка траектории */
@@ -1264,6 +1269,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
                                  }
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
                                       }                             /* CONTINUE.1 */
+/*-------------------------- Восстановление контекста мастер-объекта */
+
+        master->vSetJoints(drives_save, drives_save_cnt) ;
+
 /*------------------------------------- Регистрация контекста модуля */
 
    if(!this->kernel->stop) {                                        /* Если не было внешнего прерывания поиска */
