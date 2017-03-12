@@ -265,6 +265,7 @@ typedef  int (CALLBACK *RSS_Kernel_CallBack)(int, void *)  ;
 #define  _USER_SHOW_INFO          903    /* Показать информацию об объекте */
 #define  _USER_INFO_MESSAGE       904    /* Сообщение не об ошибке */
 #define  _USER_CHECK_MESSAGE      905    /* Сообщение контрольных условий сцены: пересечение, ограничения и прочее */
+#define  _USER_THREAD_MESSAGE     906    /* Сообщение об исполнении потока */
 
 /*-------------------------------------------------------------------*/
 

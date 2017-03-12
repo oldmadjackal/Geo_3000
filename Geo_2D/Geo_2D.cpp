@@ -341,7 +341,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                   int  i ; 
                  char  command[1024] ;
                  char *end ;
- struct UD_show_panel  check_msg ;
+
+  static struct UD_show_panel  check_msg ;
+  static struct UD_show_panel  thread_msg ;
 
   static  struct {
                    int  elem ;
@@ -351,6 +353,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                    int  ys ;
                  }  loc_pos[]={
                                 {IDC_SHOW,           0, 0, 1, 1},
+                                {IDC_THREAD_TITLE,   0, 1, 0, 0},
+                                {IDC_THREAD_MESSAGE, 0, 1, 1, 0},
+                                {IDC_CHECK_TITLE,    0, 1, 0, 0},
                                 {IDC_CHECK_MESSAGE,  0, 1, 1, 0},
                                 {IDC_COMMAND,        0, 1, 1, 0},
                                 {IDC_STATUS_INFO,    1, 0, 0, 1},
@@ -448,6 +453,20 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                     SendMessage(ITEM(IDC_STATUS_INFO),
                                   WM_SETFONT, (WPARAM)font, 0) ;
 /*- - - - - - - - - - - - - - - - -  Инициализация значеий элементов */
+            strcpy(check_msg.text, "") ;
+                   check_msg.fore_color=RGB(255,  0,  0) ;
+                   check_msg.back_color=RGB(232,232,232) ;
+
+           SendMessage(ITEM(IDC_CHECK_MESSAGE), WM_SETTEXT, NULL, 
+                         (LPARAM)UD_ptr_incode((void *)&check_msg)) ;
+
+           strcpy(thread_msg.text, "") ;
+                  thread_msg.fore_color=RGB(  0,128,  0) ;
+                  thread_msg.back_color=RGB(232,232,232) ;
+
+           SendMessage(ITEM(IDC_THREAD_MESSAGE), WM_SETTEXT, NULL, 
+                         (LPARAM)UD_ptr_incode((void *)&thread_msg)) ;
+
           SETs(IDC_COMMAND, "@tests\\fast_1.geo") ;
 /*- - - - - - - - - - - - - - - - - - - - - - - Инициализация фокуса */
                           SetFocus(ITEM(IDC_COMMAND)) ;
@@ -563,7 +582,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 /*- - - - - - - - - - - - - - -  Сообщение о нарушении условий сцены */
         if(wParam==_USER_CHECK_MESSAGE) {
 
-                   check_msg.text      =(char *)lParam ;
+           strncpy(check_msg.text, (char *)lParam, sizeof(check_msg.text)-1) ;
                    check_msg.fore_color=RGB(255,  0,  0) ;
                    check_msg.back_color=RGB(232,232,232) ;
 
@@ -572,6 +591,19 @@ int APIENTRY WinMain(HINSTANCE hInstance,
            SendMessage(ITEM(IDC_CHECK_MESSAGE), WM_PAINT, NULL, NULL) ;
 
          if(check_msg.text[0]!=0)  Beep(3000, 160) ;
+
+                			      return(FALSE) ;
+                                        }
+/*- - - - - - - - - - - - - - - - - - - -  Сообщение о работе модуля */
+        if(wParam==_USER_THREAD_MESSAGE) {
+
+           strncpy(thread_msg.text, (char *)lParam, sizeof(thread_msg.text)-1) ;
+                   thread_msg.fore_color=RGB(  0,128,  0) ;
+                   thread_msg.back_color=RGB(232,232,232) ;
+
+           SendMessage(ITEM(IDC_THREAD_MESSAGE), WM_SETTEXT, NULL, 
+                         (LPARAM)UD_ptr_incode((void *)&thread_msg)) ;
+           SendMessage(ITEM(IDC_THREAD_MESSAGE), WM_PAINT, NULL, NULL) ;
 
                 			      return(FALSE) ;
                                         }

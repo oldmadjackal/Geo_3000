@@ -28,11 +28,14 @@
  extern  RSS_Module_Main  Kernel ;    /* Системное ядро */
 
 #define  SEND_ERROR(text)      SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
-                                         (WPARAM)_USER_ERROR_MESSAGE,        \
-                                         (LPARAM) text)
+                                           (WPARAM)_USER_ERROR_MESSAGE,      \
+                                           (LPARAM) text)
 #define  SHOW_COMMAND(text)    SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
-                                         (WPARAM)_USER_SHOW_COMMAND,         \
-                                         (LPARAM) text)
+                                           (WPARAM)_USER_SHOW_COMMAND,       \
+                                           (LPARAM) text)
+#define  SHOW_THREAD(text)     SendMessage(RSS_Kernel::kernel_wnd, WM_USER,  \
+                                           (WPARAM)_USER_THREAD_MESSAGE,     \
+                                           (LPARAM) text)
 
 /*-------------------------------------------------- Описание потока */
 
@@ -123,6 +126,7 @@
            int  status ;
            int  index ;
            int  cnt ;
+          char  text[1024] ;
 
 /*------------------------------------------------- Большая разводка */
 
@@ -146,6 +150,8 @@
         
          index=LB_ADD_ROW(IDC_THREADS_LIST, thread_data->desc) ;
               LB_SET_ITEM(IDC_THREADS_LIST, index, thread_data->Thread_id) ;
+
+              SHOW_THREAD(thread_data->desc) ;
                                        return(FALSE) ;
                                      }
 /*- - - - - - - - - - - - - - - - - - - - Исключение рабочего потока */
@@ -162,6 +168,15 @@
                                          break ;
                                                     }
                                               }
+
+              if(cnt>1) {
+                 LB_GET_TEXT(IDC_THREADS_LIST, cnt-2, text) ;
+                        }
+              else      {
+                                strcpy(text, "") ;
+                        }
+
+                           SHOW_THREAD(text) ;
 
                                             return(FALSE) ;
                                         }
